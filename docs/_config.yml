@@ -1,0 +1,14 @@
+# name
+name: New Repository Documentation
+
+# description
+description: Documentation site for the new respository.
+
+# site theme
+theme: jekyll-theme-minimal
+
+# author
+author: UND-ARC
+author_email: 
+
+show_downloads: true
