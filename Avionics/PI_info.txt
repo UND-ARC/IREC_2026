@@ -1,0 +1,7 @@
+user: arc
+pass: ARC
+static ip: 10.42.0.100
+
+ssh arc@10.42.0.31
+
+ARC
