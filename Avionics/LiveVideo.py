@@ -55,27 +55,35 @@ class StreamingServer(server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
+def main():
+    # --- Main Logic ---
+    picam2 = Picamera2()
+    output = StreamingOutput()
 
-# --- Main Logic ---
-picam2 = Picamera2()
-output = StreamingOutput()
+    # Create the config object first
+    config = picam2.create_video_configuration(main={"size": (1280, 720)})
 
-# Configure for IMX708
-config = picam2.create_video_configuration(
-    main={"size": (1280, 720)}, fps=30)
-picam2.configure(config)
+    # Then update it - this avoids the 'unexpected keyword argument' error
+    config.update({"fps": 30})
 
-if STREAM_TO_LAPTOP:
-    picam2.start_recording(output, format="mjpeg")
+    picam2.configure(config)
 
-    if STREAM_TO_SDR:
-        print("[!] Logic for Pluto+ would go here (e.g. pipe to ffmpeg)")
+    if STREAM_TO_LAPTOP:
+        picam2.start_recording(output, format="mjpeg")
 
-    try:
-        address = ('', PORT)
-        server = StreamingServer(address, StreamingHandler)
-        print(f"Server started on port {PORT}")
-        server.serve_forever()
-    except KeyboardInterrupt:
-        picam2.stop_recording()
-        print("Stopping...")
+        if STREAM_TO_SDR:
+            print("[!] Logic for Pluto+ would go here (e.g. pipe to ffmpeg)")
+
+        try:
+            address = ('', PORT)
+            server = StreamingServer(address, StreamingHandler)
+            print(f"Server started on port {PORT}")
+            server.serve_forever()
+        except KeyboardInterrupt:
+            picam2.stop_recording()
+            print("Stopping...")
+
+
+
+if __name__ == "__main__":
+    main()
