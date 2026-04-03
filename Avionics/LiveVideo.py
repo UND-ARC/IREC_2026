@@ -60,32 +60,31 @@ output = StreamingOutput()
 
 
 def main():
-    # 1. Create a configuration with a 'video' stream for the encoder
-    # On Pi 5, MJPEG encoding happens on the 'video' or 'main' stream
-    # but must be declared in the request.
-    config = picam2.create_video_configuration(
-        video={"size": (1280, 720), "format": "MJPEG"}
-    )
 
-    # 2. Set FPS
+    # Create a blank config and manually inject the stream requirements
+    # 'YUV420' is the internal processing format, 'MJPEG' is the external encoder
+    config = picam2.create_video_configuration(main={"size": (1280, 720)})
+
+    # Force the format to MJPEG in the configuration object directly
+    # This avoids the keyword argument error entirely
+    config["main"]["format"] = "MJPEG"
     config.update({"fps": 30})
 
-    # 3. Apply
     picam2.configure(config)
 
     if STREAM_TO_LAPTOP:
-        # Start recording the 'video' stream into our output object
-        # We specify 'name="video"' to match the config above
-        picam2.start_recording(output, name="video")
+        # On this version, start_recording likely only wants the output object
+        # since the format is already locked into the 'config' above
+        picam2.start_recording(output)
 
         try:
             address = ('', PORT)
             server = StreamingServer(address, StreamingHandler)
-            print(f"[*] Avionics Stream Live: http://10.42.0.100:{PORT}")
+            print(f"[*] IREC 2026 Avionics Feed: http://10.42.0.100:{PORT}")
             server.serve_forever()
         except KeyboardInterrupt:
             picam2.stop_recording()
-            print("\nShutting down...")
+            print("\nSafe shutdown complete.")
 
 
 if __name__ == "__main__":
