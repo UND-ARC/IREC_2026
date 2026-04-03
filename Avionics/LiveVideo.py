@@ -61,7 +61,8 @@ picam2 = Picamera2()
 output = StreamingOutput()
 
 # Configure for IMX708
-config = picam2.create_video_configuration(main={"size": (1280, 720), "fps": 30})
+config = picam2.create_video_configuration(
+    main={"size": (1280, 720)}, fps=30)
 picam2.configure(config)
 
 if STREAM_TO_LAPTOP:
