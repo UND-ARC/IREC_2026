@@ -29,6 +29,7 @@ class StreamingOutput(object):
             self.buffer.seek(0)
         return self.buffer.write(buf)
 
+output = StreamingOutput()
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -58,24 +59,31 @@ class StreamingServer(server.HTTPServer):
 def main():
     # --- Main Logic ---
     picam2 = Picamera2()
-    output = StreamingOutput()
 
-    # Create the config object first
-    config = picam2.create_video_configuration(main={"size": (1280, 720)})
+    # We must define the format here in the 'main' stream config
+    config = picam2.create_video_configuration(
+        main={"size": (1280, 720), "format": "MJPEG"}
+    )
 
-    # Then update it - this avoids the 'unexpected keyword argument' error
+    # Set the FPS
     config.update({"fps": 30})
 
     picam2.configure(config)
 
     if STREAM_TO_LAPTOP:
-        picam2.start_recording(output, format="mjpeg")
+        # Now start_recording only needs the output object
+        picam2.start_recording(output)
 
         if STREAM_TO_SDR:
-            print("[!] Logic for Pluto+ would go here (e.g. pipe to ffmpeg)")
+            print("[!] Logic for Pluto+ would go here")
 
         try:
             address = ('', PORT)
+            # Make sure 'output' is accessible to the handler
+            # Since 'output' was defined inside main, let's make it global for the server
+            global shared_output
+            shared_output = output
+
             server = StreamingServer(address, StreamingHandler)
             print(f"Server started on port {PORT}")
             server.serve_forever()
