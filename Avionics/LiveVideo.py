@@ -12,8 +12,6 @@ STREAM_TO_SDR = False
 PORT = 8000
 
 
-# ==========================================
-
 class StreamingOutput(object):
     def __init__(self):
         self.frame = None
@@ -21,14 +19,13 @@ class StreamingOutput(object):
         self.condition = Condition()
 
     def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):  # New JPEG frame
+        if buf.startswith(b'\xff\xd8'):  # New JPEG frame start
             self.buffer.truncate()
             with self.condition:
                 self.frame = self.buffer.getvalue()
                 self.condition.notify_all()
             self.buffer.seek(0)
         return self.buffer.write(buf)
-
 
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
@@ -49,7 +46,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
             except Exception as e:
-                print(f"Removed streaming client {self.client_address}: {str(e)}")
+                print(f"Client disconnected: {e}")
 
 
 class StreamingServer(server.HTTPServer):
@@ -57,35 +54,38 @@ class StreamingServer(server.HTTPServer):
     daemon_threads = True
 
 
+# Global instances so the Handler can see them
+picam2 = Picamera2()
+output = StreamingOutput()
+
+
 def main():
-    global picam2, output  # Ensure these are accessible to the server
-    picam2 = Picamera2()
-    output = StreamingOutput()
+    # 1. Create a configuration with a 'video' stream for the encoder
+    # On Pi 5, MJPEG encoding happens on the 'video' or 'main' stream
+    # but must be declared in the request.
+    config = picam2.create_video_configuration(
+        video={"size": (1280, 720), "format": "MJPEG"}
+    )
 
-    # 1. Create a standard video configuration
-    # Pi 5 prefers YUV420 or XBGR8888 for the 'main' stream
-    config = picam2.create_video_configuration(main={"size": (1280, 720), "format": "YUV420"})
-
-    # 2. Set the FPS using the dictionary update
+    # 2. Set FPS
     config.update({"fps": 30})
 
-    # 3. Apply the config
+    # 3. Apply
     picam2.configure(config)
 
     if STREAM_TO_LAPTOP:
-        # We specify the MJPEG format inside start_recording as an ENCODER option
-        # This prevents the 'FATAL' error in the ISP pipeline
-        picam2.start_recording(output, format="mjpeg")
+        # Start recording the 'video' stream into our output object
+        # We specify 'name="video"' to match the config above
+        picam2.start_recording(output, name="video")
 
         try:
             address = ('', PORT)
             server = StreamingServer(address, StreamingHandler)
-            print(f"[*] Stream active at http://10.42.0.100:{PORT}")
+            print(f"[*] Avionics Stream Live: http://10.42.0.100:{PORT}")
             server.serve_forever()
         except KeyboardInterrupt:
             picam2.stop_recording()
-            print("\nStopping...")
-
+            print("\nShutting down...")
 
 
 if __name__ == "__main__":
