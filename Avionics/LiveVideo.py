@@ -29,7 +29,7 @@ class StreamingOutput(object):
             self.buffer.seek(0)
         return self.buffer.write(buf)
 
-output = StreamingOutput()
+
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -56,40 +56,35 @@ class StreamingServer(server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
+
 def main():
-    # --- Main Logic ---
+    global picam2, output  # Ensure these are accessible to the server
     picam2 = Picamera2()
+    output = StreamingOutput()
 
-    # We must define the format here in the 'main' stream config
-    config = picam2.create_video_configuration(
-        main={"size": (1280, 720), "format": "MJPEG"}
-    )
+    # 1. Create a standard video configuration
+    # Pi 5 prefers YUV420 or XBGR8888 for the 'main' stream
+    config = picam2.create_video_configuration(main={"size": (1280, 720), "format": "YUV420"})
 
-    # Set the FPS
+    # 2. Set the FPS using the dictionary update
     config.update({"fps": 30})
 
+    # 3. Apply the config
     picam2.configure(config)
 
     if STREAM_TO_LAPTOP:
-        # Now start_recording only needs the output object
-        picam2.start_recording(output)
-
-        if STREAM_TO_SDR:
-            print("[!] Logic for Pluto+ would go here")
+        # We specify the MJPEG format inside start_recording as an ENCODER option
+        # This prevents the 'FATAL' error in the ISP pipeline
+        picam2.start_recording(output, format="mjpeg")
 
         try:
             address = ('', PORT)
-            # Make sure 'output' is accessible to the handler
-            # Since 'output' was defined inside main, let's make it global for the server
-            global shared_output
-            shared_output = output
-
             server = StreamingServer(address, StreamingHandler)
-            print(f"Server started on port {PORT}")
+            print(f"[*] Stream active at http://10.42.0.100:{PORT}")
             server.serve_forever()
         except KeyboardInterrupt:
             picam2.stop_recording()
-            print("Stopping...")
+            print("\nStopping...")
 
 
 
