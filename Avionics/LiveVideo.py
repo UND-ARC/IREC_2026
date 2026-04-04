@@ -3,6 +3,7 @@ import time
 from threading import Condition
 from http import server
 from picamera2 import Picamera2
+from picamera2.encoders import MJPEGEncoder
 
 # ==========================================
 # CONFIGURATION
@@ -60,33 +61,29 @@ output = StreamingOutput()
 
 
 def main():
-    # In version 0.3.34, use the default request and modify the dictionary
+    # 1. Standard configuration
     config = picam2.create_video_configuration()
-
-    # Manually set the parameters in the 'main' stream
     config["main"]["size"] = (1280, 720)
-    config["main"]["format"] = "YUV420"  # Stay in YUV for the ISP
-
-    # Set FPS via FrameDurationLimits (most stable for 0.3.x)
-    config["controls"]["FrameDurationLimits"] = (33333, 33333)
-
+    config["main"]["format"] = "YUV420"
     picam2.configure(config)
 
     if STREAM_TO_LAPTOP:
-        # In this version, we pass the format as a positional string if 'format' kwarg fails
-        # Or we rely on the Encoder helper:
-        print(f"[*] Starting Avionics Stream on port {PORT}...")
+        # 2. Manually create the Encoder object
+        # This matches the 'encoder' param in your start_recording definition
+        encoder = MJPEGEncoder()
 
-        # Try this specific signature for 0.3.34:
-        picam2.start_recording(output, format="mjpeg")
+        # 3. Call start_recording using the signature you found:
+        # start_recording(self, encoder, output, ...)
+        picam2.start_recording(encoder, output)
 
         try:
             address = ('', PORT)
             server = StreamingServer(address, StreamingHandler)
+            print(f"[*] Stream started: http://10.42.0.100:{PORT}")
             server.serve_forever()
         except KeyboardInterrupt:
             picam2.stop_recording()
-            print("\nShutting down...")
+
 
 
 if __name__ == "__main__":
