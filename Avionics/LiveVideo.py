@@ -19,7 +19,7 @@ class StreamingOutput(object):
         self.condition = Condition()
 
     def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):  # New JPEG frame start
+        if buf.startswith(b'\xff\xd8'):  # New JPEG frame
             self.buffer.truncate()
             with self.condition:
                 self.frame = self.buffer.getvalue()
@@ -54,37 +54,39 @@ class StreamingServer(server.HTTPServer):
     daemon_threads = True
 
 
-# Global instances so the Handler can see them
+# Global instances
 picam2 = Picamera2()
 output = StreamingOutput()
 
 
 def main():
+    # In version 0.3.34, use the default request and modify the dictionary
+    config = picam2.create_video_configuration()
 
-    # Create a blank config and manually inject the stream requirements
-    # 'YUV420' is the internal processing format, 'MJPEG' is the external encoder
-    config = picam2.create_video_configuration(main={"size": (1280, 720)})
+    # Manually set the parameters in the 'main' stream
+    config["main"]["size"] = (1280, 720)
+    config["main"]["format"] = "YUV420"  # Stay in YUV for the ISP
 
-    # Force the format to MJPEG in the configuration object directly
-    # This avoids the keyword argument error entirely
-    config["main"]["format"] = "MJPEG"
-    config.update({"fps": 30})
+    # Set FPS via FrameDurationLimits (most stable for 0.3.x)
+    config["controls"]["FrameDurationLimits"] = (33333, 33333)
 
     picam2.configure(config)
 
     if STREAM_TO_LAPTOP:
-        # On this version, start_recording likely only wants the output object
-        # since the format is already locked into the 'config' above
-        picam2.start_recording(output)
+        # In this version, we pass the format as a positional string if 'format' kwarg fails
+        # Or we rely on the Encoder helper:
+        print(f"[*] Starting Avionics Stream on port {PORT}...")
+
+        # Try this specific signature for 0.3.34:
+        picam2.start_recording(output, format="mjpeg")
 
         try:
             address = ('', PORT)
             server = StreamingServer(address, StreamingHandler)
-            print(f"[*] IREC 2026 Avionics Feed: http://10.42.0.100:{PORT}")
             server.serve_forever()
         except KeyboardInterrupt:
             picam2.stop_recording()
-            print("\nSafe shutdown complete.")
+            print("\nShutting down...")
 
 
 if __name__ == "__main__":
