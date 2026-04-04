@@ -4,6 +4,7 @@ from threading import Condition
 from http import server
 from picamera2 import Picamera2
 from picamera2.encoders import MJPEGEncoder
+from picamera2.outputs import FileOutput
 
 # ==========================================
 # CONFIGURATION
@@ -74,7 +75,8 @@ def main():
 
         # 3. Call start_recording using the signature you found:
         # start_recording(self, encoder, output, ...)
-        picam2.start_recording(encoder, output)
+
+        picam2.start_recording(encoder, FileOutput(output))
 
         try:
             address = ('', PORT)
