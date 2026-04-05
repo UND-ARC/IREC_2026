@@ -33,14 +33,13 @@ class StreamingOutput(FileOutput):
         self.condition = Condition()
 
     def write(self, buf):
-        # Check if this buffer contains a JPEG start marker anywhere in the first few bytes
-        if b'\xff\xd8' in buf[:20]:
-            self.buffer.truncate()
+        # Just update the frame whenever we get a significant chunk of data
+        # JPEG frames for 720p are usually > 10KB
+        if len(buf) > 1000:
             with self.condition:
-                self.frame = self.buffer.getvalue()
+                self.frame = buf
                 self.condition.notify_all()
-            self.buffer.seek(0)
-        return self.buffer.write(buf)
+        return len(buf)
 
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
