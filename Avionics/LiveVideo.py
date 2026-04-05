@@ -1,27 +1,39 @@
 import io
 import time
+import socket
 from threading import Condition
 from http import server
 from picamera2 import Picamera2
-from picamera2.encoders import MJPEGEncoder
+from picamera2.encoders import MJPEGEncoder, H264Encoder
 from picamera2.outputs import FileOutput
 
 # ==========================================
 # CONFIGURATION
 # ==========================================
-STREAM_TO_LAPTOP = True
-STREAM_TO_SDR = False
-PORT = 8000
+STREAM_TO_LAPTOP = True  # HTTP MJPEG (Browser)
+STREAM_TO_SDR = False  # UDP H.264 (Pluto+/Ground Station)
+
+PORT_HTTP = 8000  # Web port
+SDR_IP = "10.42.0.1"  # Destination IP for SDR/Ground Station
+SDR_PORT = 10001  # Destination Port
 
 
-class StreamingOutput(object):
+# ==========================================
+
+class StreamingOutput(FileOutput):
+    """
+    Custom output that holds the most recent JPEG frame in memory
+    for the HTTP server to serve to browsers.
+    """
+
     def __init__(self):
+        super().__init__()
         self.frame = None
         self.buffer = io.BytesIO()
         self.condition = Condition()
 
     def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):  # New JPEG frame
+        if buf.startswith(b'\xff\xd8'):  # New JPEG frame start
             self.buffer.truncate()
             with self.condition:
                 self.frame = self.buffer.getvalue()
@@ -48,7 +60,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
             except Exception as e:
-                print(f"Client disconnected: {e}")
+                print(f"Browser client disconnected: {e}")
 
 
 class StreamingServer(server.HTTPServer):
@@ -62,30 +74,60 @@ output = StreamingOutput()
 
 
 def main():
-    # 1. Standard configuration
+    # 1. Hardware Configuration (Pi 5 / IMX708)
     config = picam2.create_video_configuration()
     config["main"]["size"] = (1280, 720)
     config["main"]["format"] = "YUV420"
+    config["controls"]["FrameDurationLimits"] = (33333, 33333)  # Lock 30 FPS
     picam2.configure(config)
 
+    active_streams = []
+
+    # 2. Setup Laptop Web Stream (MJPEG)
     if STREAM_TO_LAPTOP:
-        # 2. Manually create the Encoder object
-        # This matches the 'encoder' param in your start_recording definition
-        encoder = MJPEGEncoder()
+        print(f"[*] Initializing Web Stream on port {PORT_HTTP}...")
+        enc_mjpeg = MJPEGEncoder()
+        picam2.start_recording(enc_mjpeg, output)
+        active_streams.append("HTTP")
 
-        # 3. Call start_recording using the signature you found:
-        # start_recording(self, encoder, output, ...)
+    # 3. Setup SDR Stream (UDP H.264)
+    if STREAM_TO_SDR:
+        print(f"[*] Initializing SDR UDP Stream to {SDR_IP}:{SDR_PORT}...")
+        # Create a raw UDP socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect((SDR_IP, SDR_PORT))
 
-        picam2.start_recording(encoder, FileOutput(output))
+        # Create a file-like object from the socket for Picamera2
+        sdr_file_obj = sock.makefile("wb")
+        sdr_output = FileOutput(sdr_file_obj)
 
-        try:
-            address = ('', PORT)
-            server = StreamingServer(address, StreamingHandler)
-            print(f"[*] Stream started: http://10.42.0.100:{PORT}")
-            server.serve_forever()
-        except KeyboardInterrupt:
-            picam2.stop_recording()
+        # Use H264 for radio efficiency (1Mbps bitrate)
+        enc_h264 = H264Encoder(bitrate=1000000)
+        picam2.start_recording(enc_h264, sdr_output)
+        active_streams.append("SDR/UDP")
 
+    # 4. Start Server or Loop
+    if not active_streams:
+        print("[!] No streams enabled. Check your flags!")
+        return
+
+    try:
+        if STREAM_TO_LAPTOP:
+            address = ('', PORT_HTTP)
+            http_server = StreamingServer(address, StreamingHandler)
+            print(f"[*] Avionics Live at http://10.42.0.100:{PORT_HTTP}")
+            http_server.serve_forever()
+        else:
+            # If only SDR is active, just loop to keep script alive
+            while True:
+                time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("\n[!] Shutting down all streams...")
+        picam2.stop_recording()
+        if STREAM_TO_SDR:
+            sdr_file_obj.close()
+            sock.close()
 
 
 if __name__ == "__main__":
