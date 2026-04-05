@@ -33,7 +33,8 @@ class StreamingOutput(FileOutput):
         self.condition = Condition()
 
     def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):  # New JPEG frame start
+        # Check if this buffer contains a JPEG start marker anywhere in the first few bytes
+        if b'\xff\xd8' in buf[:20]:
             self.buffer.truncate()
             with self.condition:
                 self.frame = self.buffer.getvalue()
