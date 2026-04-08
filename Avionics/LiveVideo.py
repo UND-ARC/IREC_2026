@@ -36,9 +36,8 @@ def get_telemetry():
 def main():
     picam2 = Picamera2()
 
-    # Configure Camera
-    fmt = "RGB888" if USE_OVERLAY else "YUV420"
-    config = picam2.create_video_configuration(main={"size": (1280, 720), "format": fmt})
+    # We capture in RGB888 for OpenCV, but we will convert to YUV for the encoder
+    config = picam2.create_video_configuration(main={"size": (1280, 720), "format": "RGB888"})
     picam2.configure(config)
     picam2.start()
 
@@ -51,47 +50,45 @@ def main():
         print(f"[*] Connecting to GS at {GROUND_STATION_IP}...")
         sock.connect((GROUND_STATION_IP, PORT))
 
-        # 1. Create a raw stream from the socket
+        # Use a BufferedIOBase compatible wrapper
         raw_sock = sock.makefile("wb", buffering=0)
-
-        # 2. Wrap it in a BufferedWriter to satisfy "io.BufferedIOBase"
-        # This is the "fix" for the error you just saw
         socket_file = io.BufferedWriter(raw_sock)
 
-        # 3. Initialize Encoder
+        # Initialize Encoder - We let it auto-detect format from the first frame
         encoder = H264Encoder()
         encoder.options = {
             "bitrate": BITRATE,
             "iperiod": IDR_VAL,
-            "profile": "baseline",
             "preset": "ultrafast",
             "tune": "zerolatency"
         }
-
-        # 4. Link to the wrapped socket
         encoder.output = FileOutput(socket_file)
-        encoder.start()
+        # Note: We don't call encoder.start() yet; some versions start on the first frame
 
-        print(f"[!] VIDEO LINK ACTIVE")
+        print(f"[!] VIDEO LINK ACTIVE - WAITING FOR FIRST FRAME")
 
         while True:
-            if USE_OVERLAY:
-                with picam2.capture_request() as request:
-                    frame = request.make_array("main")
-                    data = get_telemetry()
+            # 1. Capture RGB frame
+            frame_rgb = picam2.capture_array("main")
 
-                    cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
-                    ts = time.strftime("%H:%M:%S")
-                    ov_text = f"ALT: {data['alt']}ft | {MODE_STR} | {ts}"
-                    cv2.putText(frame, ov_text, (20, 700), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            # --- DRAWING ---
+            data = get_telemetry()
+            cv2.rectangle(frame_rgb, (0, 670), (1280, 720), (0, 0, 0), -1)
+            ts = time.strftime("%H:%M:%S")
+            ov_text = f"ALT: {data['alt']}ft | {MODE_STR} | {ts}"
+            cv2.putText(frame_rgb, ov_text, (20, 700), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-                    encoder.encode(picam2.streams["main"], request)
+            # 2. CONVERT TO YUV420 (This is the magic fix for the "None" error)
+            # H.264 hardware/software encoders on Pi prefer YUV420P
+            frame_yuv = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2YUV_I420)
 
-                    # Manual flush to ensure data leaves the buffer immediately
-                    socket_file.flush()
-            else:
-                picam2.capture_file("main", encoder)
-                time.sleep(0.01)
+            # 3. Start encoder on first frame if not started
+            if not encoder.running:
+                encoder.start()
+
+            # 4. Encode the YUV data
+            encoder.encode_sample(frame_yuv)
+            socket_file.flush()
 
     except Exception as e:
         print(f"\n[!] ERROR: {e}")
