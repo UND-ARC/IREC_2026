@@ -2,6 +2,7 @@ import socket
 import time
 import cv2
 import numpy as np
+import io
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
@@ -49,10 +50,15 @@ def main():
     try:
         print(f"[*] Connecting to GS at {GROUND_STATION_IP}...")
         sock.connect((GROUND_STATION_IP, PORT))
-        # Use unbuffered binary write mode for the socket
-        socket_file = sock.makefile("wb", buffering=0)
 
-        # Initialize Encoder for Pi 5 Libav backend
+        # 1. Create a raw stream from the socket
+        raw_sock = sock.makefile("wb", buffering=0)
+
+        # 2. Wrap it in a BufferedWriter to satisfy "io.BufferedIOBase"
+        # This is the "fix" for the error you just saw
+        socket_file = io.BufferedWriter(raw_sock)
+
+        # 3. Initialize Encoder
         encoder = H264Encoder()
         encoder.options = {
             "bitrate": BITRATE,
@@ -62,6 +68,7 @@ def main():
             "tune": "zerolatency"
         }
 
+        # 4. Link to the wrapped socket
         encoder.output = FileOutput(socket_file)
         encoder.start()
 
@@ -69,21 +76,20 @@ def main():
 
         while True:
             if USE_OVERLAY:
-                # Capture hardware request and wrap in context manager
                 with picam2.capture_request() as request:
                     frame = request.make_array("main")
-
-                    # --- TELEMETRY DRAWING ---
                     data = get_telemetry()
+
                     cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
                     ts = time.strftime("%H:%M:%S")
                     ov_text = f"ALT: {data['alt']}ft | {MODE_STR} | {ts}"
                     cv2.putText(frame, ov_text, (20, 700), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-                    # Encode the specific stream and request
                     encoder.encode(picam2.streams["main"], request)
+
+                    # Manual flush to ensure data leaves the buffer immediately
+                    socket_file.flush()
             else:
-                # Direct capture path
                 picam2.capture_file("main", encoder)
                 time.sleep(0.01)
 
