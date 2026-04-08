@@ -36,7 +36,7 @@ def get_telemetry():
 def main():
     picam2 = Picamera2()
 
-    # RGB888 is required for OpenCV overlay
+    # RGB888 is the only format OpenCV can draw on directly
     fmt = "RGB888" if USE_OVERLAY else "YUV420"
     config = picam2.create_video_configuration(main={"size": (1280, 720), "format": fmt})
     picam2.configure(config)
@@ -49,32 +49,32 @@ def main():
         sock.connect((GROUND_STATION_IP, PORT))
         stream = sock.makefile("wb")
 
-        # Swapped idr_period -> iperiod
-        encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL, input_format=fmt)
-        encoder.set_output(FileOutput(stream))
+        # Remove input_format from here.
+        # iperiod is the correct Pi 5 term for Intra-period.
+        encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL)
+        encoder.output = (FileOutput(stream))
         encoder.start()
 
         print(f"[!] VIDEO LINK ACTIVE | MODE: {fmt} | I-PERIOD: {IDR_VAL}")
 
         while True:
             if USE_OVERLAY:
-                # Capture the hardware request
-                request = picam2.capture_request()
+                # 1. Grab the hardware request
+                # Use 'with' to ensure the request is released even if OpenCV fails
+                with picam2.capture_request() as request:
+                    # 2. Get the array (view of hardware memory)
+                    frame = request.make_array("main")
 
-                # Draw on the array (view of hardware memory)
-                frame = request.make_array("main")
-                data = get_telemetry()
+                    # --- DRAWING ---
+                    data = get_telemetry()
+                    cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
+                    cv2.putText(frame, f"ALT: {data['alt']}ft", (20, 700),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-                cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
-                cv2.putText(frame, f"ALT: {data['alt']}ft", (20, 700),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
-                # Pass both the stream and request to the encoder
-                encoder.encode(picam2.streams["main"], request)
-
-                # Crucial: Release the buffer back to the camera system
-                picam2.release_request(request)
+                    # 3. Encode the modified request
+                    encoder.encode(picam2.streams["main"], request)
             else:
+                # The direct, high-speed path
                 picam2.capture_file("main", encoder)
                 time.sleep(0.01)
     except Exception as e:
