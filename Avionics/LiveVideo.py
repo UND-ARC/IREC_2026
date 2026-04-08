@@ -49,39 +49,34 @@ def main():
         sock.connect((GROUND_STATION_IP, PORT))
         stream = sock.makefile("wb")
 
-        # FIX: Explicitly pass the input format to the encoder
-        # so it doesn't fail with KeyError: None
-        encoder = H264Encoder(bitrate=BITRATE, idr_period=IDR_VAL, input_format=fmt)
+        # Swapped idr_period -> iperiod
+        encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL, input_format=fmt)
         encoder.set_output(FileOutput(stream))
         encoder.start()
 
-        print(f"[!] VIDEO LINK ACTIVE | MODE: {fmt}")
+        print(f"[!] VIDEO LINK ACTIVE | MODE: {fmt} | I-PERIOD: {IDR_VAL}")
 
         while True:
             if USE_OVERLAY:
-                # 1. Use capture_request to get the hardware buffer
+                # Capture the hardware request
                 request = picam2.capture_request()
 
-                # 2. Access the array directly (this is a view of the hardware buffer)
+                # Draw on the array (view of hardware memory)
                 frame = request.make_array("main")
-
-                # --- DRAWING ---
                 data = get_telemetry()
-                cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
-                cv2.putText(frame, f"ALT: {data['alt']}ft | {time.strftime('%H:%M:%S')}",
-                            (20, 700), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-                # 3. Pass the hardware stream and the modified request to the encoder
-                # This matches the (stream, request) requirement
+                cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
+                cv2.putText(frame, f"ALT: {data['alt']}ft", (20, 700),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+                # Pass both the stream and request to the encoder
                 encoder.encode(picam2.streams["main"], request)
 
-                # 4. Release the buffer back to the camera
+                # Crucial: Release the buffer back to the camera system
                 picam2.release_request(request)
             else:
-                # Optimized path without overlay
                 picam2.capture_file("main", encoder)
                 time.sleep(0.01)
-
     except Exception as e:
         print(f"\n[!] ERROR: {e}")
     finally:
