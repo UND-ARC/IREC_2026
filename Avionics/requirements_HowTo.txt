@@ -1,6 +1,0 @@
-#in pycharm
-pip freeze > requirements.txt
-
-#on pi
-source venv/bin/activate
-pip install -r requirements.txt
