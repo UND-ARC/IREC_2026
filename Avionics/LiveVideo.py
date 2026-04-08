@@ -33,19 +33,14 @@ def get_telemetry():
     }
 
 
-picam2 = Picamera2()
-
-
 def main():
-    # 1. Hardware Config
-    # If using overlay, we need RGB888. If not, YUV420 is more efficient for the encoder.
+    picam2 = Picamera2()
+
+    # RGB888 is required for OpenCV overlay
     fmt = "RGB888" if USE_OVERLAY else "YUV420"
     config = picam2.create_video_configuration(main={"size": (1280, 720), "format": fmt})
     picam2.configure(config)
     picam2.start()
-
-    mode_str = "FLIGHT" if IS_FLIGHT_MODE else "BENCH"
-    print(f"[*] Starting in {mode_str} MODE (Overlay: {USE_OVERLAY})")
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(5.0)
@@ -54,44 +49,48 @@ def main():
         sock.connect((GROUND_STATION_IP, PORT))
         stream = sock.makefile("wb")
 
-        encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL)
-        encoder.output = FileOutput(stream)
+        # FIX: Explicitly pass the input format to the encoder
+        # so it doesn't fail with KeyError: None
+        encoder = H264Encoder(bitrate=BITRATE, idr_period=IDR_VAL, input_format=fmt)
+        encoder.set_output(FileOutput(stream))
         encoder.start()
 
-        print("[!] VIDEO LINK ACTIVE")
+        print(f"[!] VIDEO LINK ACTIVE | MODE: {fmt}")
 
         while True:
             if USE_OVERLAY:
-                # 1. Capture the frame into a request object
+                # 1. Use capture_request to get the hardware buffer
                 request = picam2.capture_request()
 
-                # 2. Get the numpy array from the request to draw on it
+                # 2. Access the array directly (this is a view of the hardware buffer)
                 frame = request.make_array("main")
 
-                # --- DRAWING (OpenCV) ---
+                # --- DRAWING ---
                 data = get_telemetry()
                 cv2.rectangle(frame, (0, 670), (1280, 720), (0, 0, 0), -1)
-                cv2.putText(frame, f"ALT: {data['alt']}ft", (20, 700),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                cv2.putText(frame, f"ALT: {data['alt']}ft | {time.strftime('%H:%M:%S')}",
+                            (20, 700), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-                # 3. Hand the request (with the modified array) to the encoder
-                # The encoder.encode method takes the stream and the request
+                # 3. Pass the hardware stream and the modified request to the encoder
+                # This matches the (stream, request) requirement
                 encoder.encode(picam2.streams["main"], request)
 
-                # 4. Release the request back to the camera system
+                # 4. Release the buffer back to the camera
                 picam2.release_request(request)
             else:
-                # The high-speed path for no-overlay
+                # Optimized path without overlay
                 picam2.capture_file("main", encoder)
                 time.sleep(0.01)
 
-    except (socket.timeout, ConnectionRefusedError):
-        print("[!] ERROR: Ground Station not found.")
-    except KeyboardInterrupt:
-        print("\n[!] Manual Stop.")
+    except Exception as e:
+        print(f"\n[!] ERROR: {e}")
     finally:
         print("[*] Cleaning up...")
-        encoder.stop()
+        # Note: Added safety check because stop() can fail if start() didn't finish
+        try:
+            encoder.stop()
+        except:
+            pass
         picam2.stop()
         sock.close()
 
