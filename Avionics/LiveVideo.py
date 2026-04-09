@@ -91,8 +91,7 @@ def main():
         encoder = H264Encoder(
             bitrate=BITRATE,
             iperiod=IDR_VAL,
-            repeat=True,
-            inline=True,         # Inline SPS/PPS headers — critical for ffplay
+            repeat=True        # Inline SPS/PPS headers — critical for ffplay
         )
 
         picam2.start_recording(encoder, FileOutput(output))
