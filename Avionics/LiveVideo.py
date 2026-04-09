@@ -51,16 +51,15 @@ def apply_overlay(request):
     """Pre-callback: runs before the frame is encoded."""
     if not USE_OVERLAY:
         return
-    # Get the YUV420 array — shape is (H*1.5, W) for planar YUV
-    with request.make_array("main") as yuv:
-        h, w = 720, 1280
-        # Black bar: zero out Y channel rows 670-720
-        yuv[670:720, :] = 0
-        # White text on Y plane
-        data = get_telemetry()
-        ov_text = f"ALT: {data['alt']}ft | {MODE_STR} | {time.strftime('%H:%M:%S')}"
-        cv2.putText(yuv[:h], ov_text, (20, 710),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
+    yuv = request.make_array("main")  # returns ndarray directly, no 'with'
+    h, w = 720, 1280
+    # Black bar: zero out Y channel rows 670-720
+    yuv[670:720, :] = 0
+    # White text on Y plane
+    data = get_telemetry()
+    ov_text = f"ALT: {data['alt']}ft | {MODE_STR} | {time.strftime('%H:%M:%S')}"
+    cv2.putText(yuv[:h], ov_text, (20, 710),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
 
 
 def main():
