@@ -3,7 +3,7 @@ import time
 import cv2
 import numpy as np
 import io
-from picamera2 import Picamera2
+from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
 
@@ -48,18 +48,28 @@ class OverlayOutput(io.RawIOBase):
 
 
 def apply_overlay(request):
-    """Pre-callback: runs before the frame is encoded."""
     if not USE_OVERLAY:
         return
-    yuv = request.make_array("main")  # returns ndarray directly, no 'with'
+
     h, w = 720, 1280
-    # Black bar: zero out Y channel rows 670-720
-    yuv[670:720, :] = 0
-    # White text on Y plane
+    banner_h = 50
+
     data = get_telemetry()
-    ov_text = f"ALT: {data['alt']}ft | {MODE_STR} | {time.strftime('%H:%M:%S')}"
-    cv2.putText(yuv[:h], ov_text, (20, 710),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, 255, 2)
+    ov_text = (f"  ALT: {data['alt']} ft  |  GPS: {data['gps']}  |  "
+               f"{MODE_STR}  |  {time.strftime('%H:%M:%S')}")
+
+    with MappedArray(request, "main") as m:
+        # m.array is a writable YUV420 array — shape (1080, 1280) for luma+chroma
+        # Black banner on Y plane
+        m.array[h - banner_h:h, :] = 0
+        # White text on Y plane
+        cv2.putText(
+            m.array[:h],
+            ov_text,
+            (10, h - 15),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, 255, 2, cv2.LINE_AA
+        )
 
 
 def main():
