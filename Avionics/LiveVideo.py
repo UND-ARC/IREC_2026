@@ -71,6 +71,13 @@ def apply_overlay(request):
             0.65, 255, 2, cv2.LINE_AA
         )
 
+class PlutoOutput(io.RawIOBase):
+    def write(self, b):
+        # Chunk into 1024 byte pieces for the TX script
+        for i in range(0, len(b), 1024):
+            socket.sendto(b[i:i+1024], ("127.0.0.1", 10002))
+        return len(b)
+
 
 def main():
     picam2 = Picamera2()
@@ -103,6 +110,8 @@ def main():
         )
 
         picam2.start_recording(encoder, FileOutput(socket_file))
+        if MODE_STR == "FLIGHT":
+            _pluto_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         print(f"[!] VIDEO LINK ACTIVE — streaming to {GROUND_STATION_IP}:{PORT}")
 
         while True:
