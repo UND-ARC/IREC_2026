@@ -8,7 +8,7 @@
 #GND (PIN 6) to GND
 
 #Install Adafruit GPS library
-pip3 install adafruit-circuitpython-gps
+#pip3 install adafruit-circuitpython-gps
 
 import time
 import board
