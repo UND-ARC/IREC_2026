@@ -82,19 +82,18 @@ def main():
     try:
         print(f"[*] Connecting to GS at {GROUND_STATION_IP}:{PORT}...")
         sock.connect((GROUND_STATION_IP, PORT))
-        sock.settimeout(None)  # Remove timeout after connect for streaming
+        sock.settimeout(None)
         print(f"[*] Connected!")
 
-        # FIX: Pass the raw socket directly — no BufferedWriter wrapping
-        output = OverlayOutput(sock)
+        # makefile gives a proper BufferedIOBase that FileOutput accepts
+        socket_file = sock.makefile("wb")
 
         encoder = H264Encoder(
             bitrate=BITRATE,
             iperiod=IDR_VAL,
-            repeat=True        # Inline SPS/PPS headers — critical for ffplay
         )
 
-        picam2.start_recording(encoder, FileOutput(output))
+        picam2.start_recording(encoder, FileOutput(socket_file))
         print(f"[!] VIDEO LINK ACTIVE — streaming to {GROUND_STATION_IP}:{PORT}")
 
         while True:
