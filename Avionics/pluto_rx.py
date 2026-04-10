@@ -7,11 +7,12 @@ import struct
 #TX_BW       = 10_000_000
 TX_FREQ = 915_000_000   # 915 MHz TODO for testing
 TX_BW   = 5_000_000     # drop to 5 MHz — safer for 915 antennas TODO for testing
-SAMPLE_RATE = 10_000_000
+SAMPLE_RATE = 5_000_000
 RX_GAIN     = 40            # dB
 CHUNK_SIZE  = 1024
 FFPLAY_IP   = "127.0.0.1"
 FFPLAY_PORT = 10003
+RX_BUFFER_SAMPLES = 8192
 
 SYNC = b'\xDE\xAD\xBE\xEF'
 
@@ -63,7 +64,7 @@ def main():
     sdr.rx_lo                 = TX_FREQ
     sdr.gain_control_mode_chan0 = "manual"
     sdr.rx_hardwaregain_chan0 = RX_GAIN
-    sdr.rx_buffer_size        = 1024 * 16
+    sdr.rx_buffer_size        = RX_BUFFER_SAMPLES
     print(f"[*] PlutoSDR RX ready at {TX_FREQ/1e9:.3f} GHz")
 
     # Send recovered video to ffplay via UDP

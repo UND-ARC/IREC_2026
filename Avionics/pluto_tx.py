@@ -9,83 +9,85 @@ import time
 # ==========================================
 # RF CONFIGURATION
 # ==========================================
-#TX_FREQ     = 1_200_000_000   # 1.2 GHz
-TX_FREQ = 915_000_000   # 915 MHz TODO for testing
-#TX_BW       = 10_000_000      # 10 MHz bandwidth
-TX_BW   = 5_000_000     # drop to 5 MHz — safer for 915 antennas TODO for testing
-SAMPLE_RATE = 10_000_000      # 10 Msps
-TX_GAIN     = -30             # dBm — keep LOW for bench testing, max -0 for flight
-CHUNK_SIZE  = 1024            # bytes per RF burst
-UDP_PORT    = 10002           # local UDP port to receive H264 from camera script
+TX_FREQ      = 915_000_000
+TX_BW        = 5_000_000
+SAMPLE_RATE  = 5_000_000
+TX_GAIN      = -50
+CHUNK_SIZE   = 1024
+UDP_PORT     = 10002
 
+# Fixed buffer size in samples — must stay constant after first tx() call
+# 1024 bytes → ~4096 QPSK symbols, round up to next power of 2
+TX_BUFFER_SAMPLES = 8192
 # ==========================================
 
-def make_qpsk_symbols(data: bytes) -> np.ndarray:
-    """Pack bytes into QPSK IQ samples."""
-    # Pad to even number of bits
+def make_qpsk_symbols(data: bytes, target_len: int) -> np.ndarray:
+    """Pack bytes into QPSK IQ samples, padded to exactly target_len samples."""
     bits = np.unpackbits(np.frombuffer(data, dtype=np.uint8))
     if len(bits) % 2:
         bits = np.append(bits, 0)
 
-    # Map bit pairs to QPSK constellation
-    # 00 -> 1+1j, 01 -> -1+1j, 10 -> 1-1j, 11 -> -1-1j
     i_bits = bits[0::2].astype(np.float32) * 2 - 1
     q_bits = bits[1::2].astype(np.float32) * 2 - 1
-
     symbols = (i_bits + 1j * q_bits).astype(np.complex64)
 
-    # Scale to PlutoSDR's expected range
-    symbols *= 2**14
+    # Pad or truncate to fixed target length
+    if len(symbols) < target_len:
+        padding = np.zeros(target_len - len(symbols), dtype=np.complex64)
+        symbols = np.concatenate([symbols, padding])
+    else:
+        symbols = symbols[:target_len]
 
+    symbols *= 2**14
     return symbols
 
 
 def framer(data: bytes, seq: int) -> bytes:
-    """
-    Simple packet framing:
-    [SYNC 4B][SEQ 4B][LEN 2B][PAYLOAD][CRC 1B]
-    """
-    sync = b'\xDE\xAD\xBE\xEF'
-    length = struct.pack(">H", len(data))
+    sync      = b'\xDE\xAD\xBE\xEF'
     seq_bytes = struct.pack(">I", seq)
-    crc = sum(data) & 0xFF
-    return sync + seq_bytes + length + data + bytes([crc])
+    length    = struct.pack(">H", len(data))
+    crc       = bytes([sum(data) & 0xFF])
+    return sync + seq_bytes + length + data + crc
 
 
 def tx_worker(sdr, pkt_queue: queue.Queue):
-    """Pulls packets from queue and transmits."""
     seq = 0
+    first = True
     while True:
         try:
             chunk = pkt_queue.get(timeout=1.0)
-            frame = framer(chunk, seq)
-            seq = (seq + 1) % 0xFFFFFFFF
-            symbols = make_qpsk_symbols(frame)
+            frame   = framer(chunk, seq)
+            seq     = (seq + 1) % 0xFFFFFFFF
+            symbols = make_qpsk_symbols(frame, TX_BUFFER_SAMPLES)
+
+            if first:
+                sdr.tx_buffer_size = TX_BUFFER_SAMPLES
+                first = False
+
             sdr.tx(symbols)
+
         except queue.Empty:
-            continue
+            # Send zeros to keep buffer happy during gaps
+            sdr.tx(np.zeros(TX_BUFFER_SAMPLES, dtype=np.complex64))
         except Exception as e:
             print(f"[TX ERROR] {e}")
 
 
 def main():
-    print("[*] Connecting to PlutoSDR...")
+    print("[*] Connecting to PlutoSDR TX...")
     sdr = adi.Pluto("usb:")
-    sdr.sample_rate              = SAMPLE_RATE
-    sdr.tx_rf_bandwidth          = TX_BW
-    sdr.tx_lo                    = TX_FREQ
-    sdr.tx_hardwaregain_chan0    = TX_GAIN
-    sdr.tx_cyclic_buffer         = False
-    sdr.tx_buffer_size           = 1024 * 16
-    print(f"[*] PlutoSDR TX ready at {TX_FREQ/1e9:.3f} GHz, gain={TX_GAIN} dBm")
+    sdr.sample_rate           = SAMPLE_RATE
+    sdr.tx_rf_bandwidth       = TX_BW
+    sdr.tx_lo                 = TX_FREQ
+    sdr.tx_hardwaregain_chan0 = TX_GAIN
+    sdr.tx_cyclic_buffer      = False
+    sdr.tx_buffer_size        = TX_BUFFER_SAMPLES
+    print(f"[*] PlutoSDR TX ready at {TX_FREQ/1e6:.1f} MHz, gain={TX_GAIN} dB")
 
     pkt_queue = queue.Queue(maxsize=30)
-
-    # Start TX thread
     t = threading.Thread(target=tx_worker, args=(sdr, pkt_queue), daemon=True)
     t.start()
 
-    # Listen for H264 chunks over local UDP from camera script
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("127.0.0.1", UDP_PORT))
     print(f"[*] Listening for video on UDP {UDP_PORT}...")
@@ -94,8 +96,6 @@ def main():
         data, _ = sock.recvfrom(CHUNK_SIZE + 64)
         if not pkt_queue.full():
             pkt_queue.put(data)
-        else:
-            pass  # drop packet — RF can't keep up, normal at high bitrates
 
 
 if __name__ == "__main__":
