@@ -97,10 +97,7 @@ def main():
     sock.settimeout(10.0)
 
     try:
-        print(f"[*] Connecting to GS at {GROUND_STATION_IP}:{PORT}...")
-        sock.connect((GROUND_STATION_IP, PORT))
-        sock.settimeout(None)
-        print(f"[*] Connected!")
+
 
         # makefile gives a proper BufferedIOBase that FileOutput accepts
         socket_file = sock.makefile("wb")
@@ -113,6 +110,11 @@ def main():
         picam2.start_recording(encoder, FileOutput(socket_file))
         if MODE_STR == "FLIGHT":
             _pluto_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        elif MODE_STR == "BENCH":
+            print(f"[*] Connecting to GS at {GROUND_STATION_IP}:{PORT}...")
+            sock.connect((GROUND_STATION_IP, PORT))
+            sock.settimeout(None)
+            print(f"[*] Connected!")
         print(f"[!] VIDEO LINK ACTIVE — streaming to {GROUND_STATION_IP}:{PORT}")
 
         while True:
