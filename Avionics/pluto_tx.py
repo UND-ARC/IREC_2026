@@ -57,16 +57,13 @@ class PlutoTX:
         self._sdr.sample_rate           = SAMPLE_RATE
         self._sdr.tx_rf_bandwidth       = TX_BW
         self._sdr.tx_lo                 = TX_FREQ
-        # Force both sides to use the same reference
-        self._sdr._ctrl.attrs["dcxo_tune_coarse"].value = "0"
-        self._sdr._ctrl.attrs["dcxo_tune_fine"].value = "0"
         self._sdr.tx_hardwaregain_chan0  = TX_GAIN
         self._sdr.tx_cyclic_buffer      = False
         self._sdr.tx_buffer_size        = TX_BUFFER_SAMPLES
         print(f"[PlutoTX] Ready at {TX_FREQ/1e6:.1f} MHz, gain={TX_GAIN} dB")
 
-        self._queue = queue.Queue(maxsize=30)
-        self._seq   = 0
+        self._queue  = queue.Queue(maxsize=30)
+        self._seq    = 0
         self._thread = threading.Thread(target=self._worker, daemon=True)
         self._thread.start()
 
