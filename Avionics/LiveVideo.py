@@ -56,6 +56,9 @@ class PlutoOutput(io.RawIOBase):
     def __init__(self, udp_sock):
         self._sock = udp_sock
 
+    def writable(self):
+        return True
+
     def write(self, b):
         for i in range(0, len(b), PLUTO_CHUNK):
             self._sock.sendto(b[i:i + PLUTO_CHUNK], (PLUTO_UDP_IP, PLUTO_UDP_PORT))
