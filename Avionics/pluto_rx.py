@@ -38,31 +38,6 @@ def try_demod(samples: np.ndarray, offset: int, rotation: complex) -> bytes:
     return np.packbits(bits).tobytes()
 
 
-def demod_search(samples: np.ndarray) -> bytes | None:
-    """
-    Search across timing offsets (0,1) and all 4 phase rotations.
-    Returns demodulated bytes if sync word found, else None.
-    """
-    rotations = [1+0j, 0+1j, -1+0j, 0-1j]
-
-    # Try skipping the preamble at offset 0 and 1 (even/odd alignment)
-    for offset in range(2):
-        data_samples = samples[PREAMBLE_LEN + offset:]
-        for rot in rotations:
-            candidate = try_demod(data_samples, 0, rot)
-            if SYNC in candidate:
-                return candidate
-
-    # Broader search — try every offset up to 8 in case preamble detection is off
-    for offset in range(8):
-        for rot in rotations:
-            candidate = try_demod(samples, offset, rot)
-            if SYNC in candidate:
-                return candidate
-
-    return None
-
-
 def deframe(buf: bytearray):
     packets = []
     while len(buf) >= 11:
@@ -137,6 +112,52 @@ def display_worker(h264_queue: queue.Queue):
     cv2.destroyAllWindows()
     proc.terminate()
 
+def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
+    """
+    Symbol-by-symbol QPSK demod with a phase tracking PLL.
+    Handles frequency offsets that spin the constellation.
+    """
+    # Skip preamble
+    data = samples[PREAMBLE_LEN:].copy()
+    n    = len(data)
+
+    # PLL parameters — tune these if lock is unstable
+    alpha      = 0.1    # phase correction gain
+    beta       = 0.001  # frequency correction gain
+    phase      = 0.0
+    freq       = 0.0
+
+    i_bits = np.zeros(n, dtype=np.uint8)
+    q_bits = np.zeros(n, dtype=np.uint8)
+
+    for k in range(n):
+        # Apply current phase correction
+        corrected = data[k] * np.exp(-1j * phase)
+
+        # Hard decision
+        i_bit = 1 if np.real(corrected) > 0 else 0
+        q_bit = 1 if np.imag(corrected) > 0 else 0
+        i_bits[k] = i_bit
+        q_bits[k] = q_bit
+
+        # Ideal symbol location
+        i_ideal = 1.0 if i_bit else -1.0
+        q_ideal = 1.0 if q_bit else -1.0
+
+        # Phase error = cross product of received vs ideal
+        error = (np.real(corrected) * q_ideal -
+                 np.imag(corrected) * i_ideal)
+
+        # Update PLL
+        freq  += beta * error
+        phase += alpha * error + freq
+
+    # Pack bits
+    bits = np.empty(n * 2, dtype=np.uint8)
+    bits[0::2] = i_bits
+    bits[1::2] = q_bits
+    bits = bits[:len(bits) - len(bits) % 8]
+    return np.packbits(bits).tobytes()
 
 def main():
     print("[*] Connecting to PlutoSDR RX...")
@@ -144,6 +165,10 @@ def main():
     sdr.sample_rate             = SAMPLE_RATE
     sdr.rx_rf_bandwidth         = TX_BW
     sdr.rx_lo                   = TX_FREQ
+    sdr.tx_lo = TX_FREQ
+    # Force both sides to use the same reference
+    sdr._ctrl.attrs["dcxo_tune_coarse"].value = "0"
+    sdr._ctrl.attrs["dcxo_tune_fine"].value = "0"
     sdr.gain_control_mode_chan0 = "manual"
     sdr.rx_hardwaregain_chan0   = RX_GAIN
     sdr.rx_buffer_size          = RX_BUFFER_SAMPLES
@@ -152,38 +177,38 @@ def main():
     h264_queue = queue.Queue(maxsize=60)
     threading.Thread(target=display_worker, args=(h264_queue,), daemon=True).start()
 
-    buf         = bytearray()
-    last_seq    = -1
-    total_pkts  = 0
+    # Accumulate samples across buffers — TX sends 8192 samples but RX
+    # buffers may not be aligned to TX buffer boundaries
+    sample_buf   = np.array([], dtype=np.complex64)
+
+    buf          = bytearray()
+    last_seq     = -1
+    total_pkts   = 0
     dropped_pkts = 0
     rx_attempts  = 0
     sync_hits    = 0
 
-    print("[*] Receiving — press Ctrl+C to stop")
-    print("[*] Diagnostics every 100 buffers:\n")
+    print("[*] Receiving — press Ctrl+C to stop\n")
 
     try:
         while True:
-            samples     = sdr.rx()
-            samples     = correct_frequency_offset(samples)
+            new_samples = sdr.rx()
+            sample_buf = np.concatenate([sample_buf, new_samples.astype(np.complex64)])
             rx_attempts += 1
 
-            result = demod_search(samples)
+            while len(sample_buf) >= RX_BUFFER_SAMPLES:
+                chunk = sample_buf[:RX_BUFFER_SAMPLES]
+                sample_buf = sample_buf[RX_BUFFER_SAMPLES:]
 
-            if result is not None:
-                sync_hits += 1
+                result = demod_with_phase_tracking(chunk)
                 buf.extend(result)
-            else:
-                # Still append raw demod in case sync spans two buffers
-                raw = try_demod(samples, 0, 1+0j)
-                buf.extend(raw)
+                if SYNC in result:
+                    sync_hits += 1
 
-            # Cap buffer
             if len(buf) > 1024 * 512:
                 buf = buf[-1024 * 64:]
 
             packets, buf = deframe(buf)
-
             for seq, payload in packets:
                 total_pkts += 1
                 if last_seq != -1 and seq != (last_seq + 1) % 0xFFFFFFFF:
@@ -193,17 +218,63 @@ def main():
                 if not h264_queue.full():
                     h264_queue.put(payload)
 
-            # Print diagnostics every 100 rx() calls
             if rx_attempts % 100 == 0:
-                power = np.mean(np.abs(samples) ** 2)
+                power = np.mean(np.abs(new_samples) ** 2)
                 print(f"[DIAG] buffers={rx_attempts} | sync_hits={sync_hits} "
                       f"| packets={total_pkts} | dropped={dropped_pkts} "
-                      f"| power={power:.1f} | buf_len={len(buf)}")
+                      f"| power={power:.1f} | buf_len={len(buf)} "
+                      f"| sample_buf={len(sample_buf)}")
 
     except KeyboardInterrupt:
-        print(f"\n[*] Done. Received {total_pkts} packets, "
+        print(f"\n[*] Done. Received {total_pkts} pkts, "
               f"dropped {dropped_pkts} ({100*dropped_pkts/max(total_pkts,1):.1f}%)")
 
 
+def capture_diagnostic():
+    """Capture raw IQ when signal detected, save to file for offline analysis."""
+    print("[*] Connecting to PlutoSDR RX...")
+    sdr = adi.Pluto("usb:")
+    sdr.sample_rate             = SAMPLE_RATE
+    sdr.rx_rf_bandwidth         = TX_BW
+    sdr.rx_lo                   = TX_FREQ
+    sdr.gain_control_mode_chan0 = "manual"
+    sdr.rx_hardwaregain_chan0   = RX_GAIN
+    sdr.rx_buffer_size          = RX_BUFFER_SAMPLES
+    print(f"[*] Watching for signal at {TX_FREQ/1e6:.1f} MHz — start the Pi TX now")
+
+    NOISE_FLOOR  = 1000    # power below this = no signal
+    captured     = []
+    capturing    = False
+    capture_goal = 50      # save 50 buffers worth of signal
+
+    try:
+        while True:
+            samples = sdr.rx().astype(np.complex64)
+            power   = np.mean(np.abs(samples) ** 2)
+
+            if not capturing and power > NOISE_FLOOR:
+                print(f"[!] Signal detected! power={power:.0f} — capturing...")
+                capturing = True
+
+            if capturing:
+                captured.append(samples.copy())
+                print(f"    captured {len(captured)}/{capture_goal} buffers")
+                if len(captured) >= capture_goal:
+                    break
+
+    except KeyboardInterrupt:
+        pass
+
+    if captured:
+        all_samples = np.concatenate(captured)
+        np.save("captured_iq.npy", all_samples)
+        print(f"[*] Saved {len(all_samples)} samples to captured_iq.npy")
+        print(f"[*] Run: python analyze_iq.py")
+    else:
+        print("[!] No signal captured")
+
+
+
 if __name__ == "__main__":
+    #capture_diagnostic()
     main()

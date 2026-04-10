@@ -12,8 +12,8 @@ TX_FREQ           = 915_000_000
 TX_BW             = 5_000_000
 SAMPLE_RATE       = 5_000_000
 TX_GAIN           = -50
-TX_BUFFER_SAMPLES = 8192
-CHUNK_SIZE        = 1024
+TX_BUFFER_SAMPLES = 4096
+CHUNK_SIZE        = 512
 PREAMBLE_LEN      = 64   # must match pluto_rx.py
 # ==========================================
 
@@ -27,11 +27,9 @@ def _framer(data: bytes, seq: int) -> bytes:
 
 
 def _to_qpsk(data: bytes, target_len: int) -> np.ndarray:
-    """Bytes → QPSK IQ samples padded to target_len, with BPSK preamble for sync."""
-    # BPSK preamble: 64 alternating +1/-1 helps RX find symbol boundaries
-    preamble = np.array([1+0j, -1+0j] * 32, dtype=np.complex64)
+    preamble = np.array([1+0j, -1+0j] * (PREAMBLE_LEN // 2), dtype=np.complex64)
 
-    bits  = np.unpackbits(np.frombuffer(data, dtype=np.uint8))
+    bits = np.unpackbits(np.frombuffer(data, dtype=np.uint8))
     if len(bits) % 2:
         bits = np.append(bits, 0)
 
@@ -39,17 +37,17 @@ def _to_qpsk(data: bytes, target_len: int) -> np.ndarray:
     q_bits  = bits[1::2].astype(np.float32) * 2 - 1
     symbols = (i_bits + 1j * q_bits).astype(np.complex64)
 
-    # Combine preamble + data symbols
     combined = np.concatenate([preamble, symbols])
 
-    # Pad or truncate to fixed length
     if len(combined) < target_len:
-        combined = np.concatenate([combined,
-                   np.zeros(target_len - len(combined), dtype=np.complex64)])
+        # Pad with preamble pattern instead of zeros — helps PLL stay locked
+        pad_len  = target_len - len(combined)
+        pad      = np.tile([1+0j, -1+0j], pad_len // 2 + 1)[:pad_len]
+        combined = np.concatenate([combined, pad.astype(np.complex64)])
     else:
         combined = combined[:target_len]
 
-    return combined * (2**14)
+    return combined * (2**13)   # slightly lower than 2^14 to avoid clipping
 
 
 class PlutoTX:
@@ -59,6 +57,9 @@ class PlutoTX:
         self._sdr.sample_rate           = SAMPLE_RATE
         self._sdr.tx_rf_bandwidth       = TX_BW
         self._sdr.tx_lo                 = TX_FREQ
+        # Force both sides to use the same reference
+        self._sdr._ctrl.attrs["dcxo_tune_coarse"].value = "0"
+        self._sdr._ctrl.attrs["dcxo_tune_fine"].value = "0"
         self._sdr.tx_hardwaregain_chan0  = TX_GAIN
         self._sdr.tx_cyclic_buffer      = False
         self._sdr.tx_buffer_size        = TX_BUFFER_SAMPLES
