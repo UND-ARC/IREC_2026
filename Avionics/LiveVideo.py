@@ -93,7 +93,7 @@ def main():
         if IS_FLIGHT_MODE:
             # --- FLIGHT: stream via PlutoSDR ---
             pluto_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            output     = FileOutput(PlutoOutput(pluto_sock))
+            output     = FileOutput(io.BufferedWriter(PlutoOutput(pluto_sock)))
             print(f"[*] FLIGHT MODE — sending H264 chunks to pluto_tx.py on UDP {PLUTO_UDP_PORT}")
 
         else:
