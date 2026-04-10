@@ -9,10 +9,12 @@ import time
 # ==========================================
 # RF CONFIGURATION
 # ==========================================
-TX_FREQ     = 1_200_000_000   # 1.2 GHz
-TX_BW       = 10_000_000      # 10 MHz bandwidth
+#TX_FREQ     = 1_200_000_000   # 1.2 GHz
+TX_FREQ = 915_000_000   # 915 MHz TODO for testing
+#TX_BW       = 10_000_000      # 10 MHz bandwidth
+TX_BW   = 5_000_000     # drop to 5 MHz — safer for 915 antennas TODO for testing
 SAMPLE_RATE = 10_000_000      # 10 Msps
-TX_GAIN     = -20             # dBm — keep LOW for bench testing, max -0 for flight
+TX_GAIN     = -50             # dBm — keep LOW for bench testing, max -0 for flight
 CHUNK_SIZE  = 1024            # bytes per RF burst
 UDP_PORT    = 10002           # local UDP port to receive H264 from camera script
 

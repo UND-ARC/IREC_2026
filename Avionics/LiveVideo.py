@@ -71,6 +71,7 @@ def apply_overlay(request):
             0.65, 255, 2, cv2.LINE_AA
         )
 
+
 class PlutoOutput(io.RawIOBase):
     def write(self, b):
         # Chunk into 1024 byte pieces for the TX script

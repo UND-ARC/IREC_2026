@@ -3,10 +3,12 @@ import numpy as np
 import socket
 import struct
 
-TX_FREQ     = 1_200_000_000
-TX_BW       = 10_000_000
+#TX_FREQ     = 1_200_000_000
+#TX_BW       = 10_000_000
+TX_FREQ = 915_000_000   # 915 MHz TODO for testing
+TX_BW   = 5_000_000     # drop to 5 MHz — safer for 915 antennas TODO for testing
 SAMPLE_RATE = 10_000_000
-RX_GAIN     = 40            # dB
+RX_GAIN     = 10            # dB
 CHUNK_SIZE  = 1024
 FFPLAY_IP   = "127.0.0.1"
 FFPLAY_PORT = 10003
