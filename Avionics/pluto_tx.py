@@ -94,6 +94,7 @@ def main():
 
     while True:
         data, _ = sock.recvfrom(CHUNK_SIZE + 64)
+        print(f"[UDP RX] {len(data)} bytes")
         if not pkt_queue.full():
             pkt_queue.put(data)
 

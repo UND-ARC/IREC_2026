@@ -79,6 +79,8 @@ def main():
     while True:
         try:
             samples = sdr.rx()
+            power = np.mean(np.abs(samples) ** 2)
+            print(f"[RX] samples={len(samples)} power={power:.2f}")
             raw = demod_qpsk(samples)
             buf.extend(raw)
             packets, buf = deframe(buf)
