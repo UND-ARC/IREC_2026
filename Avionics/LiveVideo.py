@@ -10,79 +10,70 @@ from picamera2.outputs import FileOutput
 # ==========================================
 # MISSION CONFIGURATION
 # ==========================================
-IS_FLIGHT_MODE = True  # Set TRUE for 30k ft Launch
-USE_OVERLAY = True       # Set TRUE to draw telemetry
+IS_FLIGHT_MODE = False   # Set TRUE for 30k ft Launch
+USE_OVERLAY    = True    # Set TRUE to draw telemetry overlay
+
 GROUND_STATION_IP = "10.42.0.1"
-PORT = 10001
+PORT              = 10001
+
+PLUTO_UDP_IP   = "127.0.0.1"
+PLUTO_UDP_PORT = 10002
+PLUTO_CHUNK    = 1024
 
 if IS_FLIGHT_MODE:
     BITRATE = 800_000
     IDR_VAL = 15
 else:
     BITRATE = 3_000_000
-    IDR_VAL = 60
+    IDR_VAL  = 60
 
 MODE_STR = "FLIGHT" if IS_FLIGHT_MODE else "BENCH"
 # ==========================================
 
+
 def get_telemetry():
-    """Simulated data for IREC 2026 bench testing"""
+    """Simulated data — replace with real sensor reads for flight"""
     return {"alt": 0, "gps": "32.9904 N, 106.9750 W"}
-
-
-class OverlayOutput(io.RawIOBase):
-    """
-    Sits between picamera2 and the socket.
-    Receives raw H264 NAL units — we just forward them.
-    The overlay is burned in before encoding via a pre-callback.
-    """
-    def __init__(self, sock):
-        self._sock = sock
-
-    def write(self, b):
-        try:
-            self._sock.sendall(b)
-            return len(b)
-        except Exception as e:
-            raise
 
 
 def apply_overlay(request):
     if not USE_OVERLAY:
         return
-
-    h, w = 720, 1280
-    banner_h = 50
-
-    data = get_telemetry()
+    h, w, banner_h = 720, 1280, 50
+    data   = get_telemetry()
     ov_text = (f"  ALT: {data['alt']} ft  |  GPS: {data['gps']}  |  "
                f"{MODE_STR}  |  {time.strftime('%H:%M:%S')}")
-
     with MappedArray(request, "main") as m:
-        # m.array is a writable YUV420 array — shape (1080, 1280) for luma+chroma
-        # Black banner on Y plane
-        m.array[h - banner_h:h, :] = 0
-        # White text on Y plane
+        m.array[h - banner_h:h, :] = 0          # black bar
         cv2.putText(
-            m.array[:h],
-            ov_text,
-            (10, h - 15),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, 255, 2, cv2.LINE_AA
+            m.array[:h], ov_text, (10, h - 15),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.65, 255, 2, cv2.LINE_AA
         )
 
 
 class PlutoOutput(io.RawIOBase):
+    """Chunks H264 NAL units into UDP datagrams for pluto_tx.py"""
+    def __init__(self, udp_sock):
+        self._sock = udp_sock
+
     def write(self, b):
-        # Chunk into 1024 byte pieces for the TX script
-        for i in range(0, len(b), 1024):
-            socket.sendto(b[i:i+1024], ("127.0.0.1", 10002))
+        for i in range(0, len(b), PLUTO_CHUNK):
+            self._sock.sendto(b[i:i + PLUTO_CHUNK], (PLUTO_UDP_IP, PLUTO_UDP_PORT))
+        return len(b)
+
+
+class EthernetOutput(io.RawIOBase):
+    """Streams H264 NAL units over TCP to ground station"""
+    def __init__(self, tcp_sock):
+        self._sock = tcp_sock
+
+    def write(self, b):
+        self._sock.sendall(b)
         return len(b)
 
 
 def main():
     picam2 = Picamera2()
-
     config = picam2.create_video_configuration(
         main={"size": (1280, 720), "format": "YUV420"}
     )
@@ -93,29 +84,31 @@ def main():
 
     print(f"[*] Starting {MODE_STR} MODE (Overlay: {USE_OVERLAY})")
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(10.0)
+    encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL)
+
+    tcp_sock   = None
+    pluto_sock = None
 
     try:
+        if IS_FLIGHT_MODE:
+            # --- FLIGHT: stream via PlutoSDR ---
+            pluto_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            output     = FileOutput(PlutoOutput(pluto_sock))
+            print(f"[*] FLIGHT MODE — sending H264 chunks to pluto_tx.py on UDP {PLUTO_UDP_PORT}")
 
-
-        # makefile gives a proper BufferedIOBase that FileOutput accepts
-        socket_file = sock.makefile("wb")
-
-        encoder = H264Encoder(
-            bitrate=BITRATE,
-            iperiod=IDR_VAL,
-        )
-
-        picam2.start_recording(encoder, FileOutput(socket_file))
-        if MODE_STR == "FLIGHT":
-            _pluto_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        elif MODE_STR == "BENCH":
+        else:
+            # --- BENCH: stream via Ethernet TCP ---
             print(f"[*] Connecting to GS at {GROUND_STATION_IP}:{PORT}...")
-            sock.connect((GROUND_STATION_IP, PORT))
-            sock.settimeout(None)
+            tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcp_sock.settimeout(10.0)
+            tcp_sock.connect((GROUND_STATION_IP, PORT))
+            tcp_sock.settimeout(None)
             print(f"[*] Connected!")
-        print(f"[!] VIDEO LINK ACTIVE — streaming to {GROUND_STATION_IP}:{PORT}")
+            output = FileOutput(tcp_sock.makefile("wb"))
+
+        # Start recording AFTER output is ready
+        picam2.start_recording(encoder, output)
+        print(f"[!] VIDEO LINK ACTIVE")
 
         while True:
             time.sleep(1)
@@ -133,7 +126,10 @@ def main():
         except:
             pass
         picam2.stop()
-        sock.close()
+        if tcp_sock:
+            tcp_sock.close()
+        if pluto_sock:
+            pluto_sock.close()
 
 
 if __name__ == "__main__":
