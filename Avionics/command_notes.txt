@@ -4,7 +4,7 @@ pass: ARC
 #on pi
 cd Github/IREC_2026/Avionics/
 source venv/bin/activate
-pip install opencv-python numpy picamera2 pyadi-iio
+pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps
 
 #on laptop to test
 while true; do ffplay -i tcp://0.0.0.0:10001?listen -fflags nobuffer+genpts -flags low_delay -framedrop -vf setpts=0 2>/dev/null; done

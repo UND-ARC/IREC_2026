@@ -10,7 +10,7 @@ from picamera2.outputs import FileOutput
 # ==========================================
 # MISSION CONFIGURATION
 # ==========================================
-IS_FLIGHT_MODE = False  # Set TRUE for 30k ft Launch
+IS_FLIGHT_MODE = True  # Set TRUE for 30k ft Launch
 USE_OVERLAY = True       # Set TRUE to draw telemetry
 GROUND_STATION_IP = "10.42.0.1"
 PORT = 10001
