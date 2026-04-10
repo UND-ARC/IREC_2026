@@ -14,6 +14,7 @@ SAMPLE_RATE       = 5_000_000
 TX_GAIN           = -50
 TX_BUFFER_SAMPLES = 8192
 CHUNK_SIZE        = 1024
+PREAMBLE_LEN      = 64   # must match pluto_rx.py
 # ==========================================
 
 
