@@ -6,6 +6,7 @@ import io
 from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
+from pluto_tx import PlutoTX
 
 # ==========================================
 # MISSION CONFIGURATION
@@ -52,16 +53,15 @@ def apply_overlay(request):
 
 
 class PlutoOutput(io.RawIOBase):
-    """Chunks H264 NAL units into UDP datagrams for pluto_tx.py"""
-    def __init__(self, udp_sock):
-        self._sock = udp_sock
+    """Passes H264 NAL units to PlutoTX instance."""
+    def __init__(self, pluto_tx: PlutoTX):
+        self._tx = pluto_tx
 
     def writable(self):
         return True
 
     def write(self, b):
-        for i in range(0, len(b), PLUTO_CHUNK):
-            self._sock.sendto(b[i:i + PLUTO_CHUNK], (PLUTO_UDP_IP, PLUTO_UDP_PORT))
+        self._tx.send(bytes(b))
         return len(b)
 
 
@@ -90,17 +90,14 @@ def main():
     encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL)
 
     tcp_sock   = None
-    pluto_sock = None
 
     try:
         if IS_FLIGHT_MODE:
-            # --- FLIGHT: stream via PlutoSDR ---
-            pluto_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            output     = FileOutput(io.BufferedWriter(PlutoOutput(pluto_sock)))
-            print(f"[*] FLIGHT MODE — sending H264 chunks to pluto_tx.py on UDP {PLUTO_UDP_PORT}")
-
+            pluto_tx = PlutoTX()
+            pluto_out = PlutoOutput(pluto_tx)
+            output = FileOutput(io.BufferedWriter(pluto_out))
+            print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
-            # --- BENCH: stream via Ethernet TCP ---
             print(f"[*] Connecting to GS at {GROUND_STATION_IP}:{PORT}...")
             tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             tcp_sock.settimeout(10.0)
@@ -131,8 +128,13 @@ def main():
         picam2.stop()
         if tcp_sock:
             tcp_sock.close()
-        if pluto_sock:
-            pluto_sock.close()
+        
+
+        if IS_FLIGHT_MODE:
+            try:
+                pluto_tx.stop()
+            except:
+                pass
 
 
 if __name__ == "__main__":

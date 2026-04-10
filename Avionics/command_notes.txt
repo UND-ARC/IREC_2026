@@ -4,14 +4,10 @@ pass: ARC
 #on pi
 cd Github/IREC_2026/Avionics/
 source venv/bin/activate
-pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps
+pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps 
 
-#bench mode
 python LiveVideo.py
 
-#flight mode
-python pluto_tx.py
-python LiveVideo.py
 
 #on laptop
 #for bench mode
@@ -19,4 +15,3 @@ ffplay -i tcp://0.0.0.0:10001?listen -fflags nobuffer+genpts -flags low_delay -f
 
 #for flight mode
 python pluto_rx.py
-ffplay -i udp://127.0.0.1:10003 -fflags nobuffer -flags low_delay
