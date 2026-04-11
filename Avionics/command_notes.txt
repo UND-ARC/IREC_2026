@@ -15,3 +15,7 @@ ffplay -i tcp://0.0.0.0:10001?listen -fflags nobuffer+genpts -flags low_delay -f
 
 #for flight mode
 python pluto_rx.py
+
+#to find the ip
+iio_info --scan
+

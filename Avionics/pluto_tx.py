@@ -11,7 +11,7 @@ import struct
 TX_FREQ           = 915_000_000
 TX_BW             = 5_000_000
 SAMPLE_RATE       = 10_000_000
-TX_GAIN           = -10
+TX_GAIN           = -50
 TX_BUFFER_SAMPLES = 8192
 CHUNK_SIZE        = 1024
 PREAMBLE_LEN      = 64   # must match pluto_rx.py
@@ -53,7 +53,7 @@ def _to_qpsk(data: bytes, target_len: int) -> np.ndarray:
 class PlutoTX:
     def __init__(self):
         print("[PlutoTX] Connecting to PlutoSDR...")
-        self._sdr = adi.Pluto("usb:")
+        self._sdr = adi.Pluto("usb:1.11.5")
         self._sdr.sample_rate = SAMPLE_RATE
         self._sdr.tx_rf_bandwidth = TX_BW
         self._sdr.tx_lo = TX_FREQ
