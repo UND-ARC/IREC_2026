@@ -10,7 +10,7 @@ import queue
 TX_FREQ           = 915_000_000
 TX_BW             = 10_000_000
 SAMPLE_RATE       = 10_000_000
-RX_GAIN           = 20
+RX_GAIN           = 50
 RX_BUFFER_SAMPLES = 8192
 PREAMBLE_LEN      = 64
 # ==========================================
@@ -233,7 +233,7 @@ def main():
 def capture_diagnostic():
     """Capture raw IQ when signal detected, save to file for offline analysis."""
     print("[*] Connecting to PlutoSDR RX...")
-    sdr = adi.Pluto("usb:7.3.5")
+    sdr = adi.Pluto("usb:")
     sdr.sample_rate             = SAMPLE_RATE
     sdr.rx_rf_bandwidth         = TX_BW
     sdr.rx_lo                   = TX_FREQ

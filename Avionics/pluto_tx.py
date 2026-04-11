@@ -11,7 +11,7 @@ import struct
 TX_FREQ           = 915_000_000
 TX_BW             = 5_000_000
 SAMPLE_RATE       = 10_000_000
-TX_GAIN           = -50
+TX_GAIN           = -10
 TX_BUFFER_SAMPLES = 8192
 CHUNK_SIZE        = 1024
 PREAMBLE_LEN      = 64   # must match pluto_rx.py
