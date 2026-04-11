@@ -161,7 +161,7 @@ def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
 
 def main():
     print("[*] Connecting to PlutoSDR RX...")
-    sdr = adi.Pluto("usb:1.10.5")
+    sdr = adi.Pluto("usb:7.2.5")
     sdr.sample_rate = SAMPLE_RATE
     sdr.rx_rf_bandwidth = TX_BW
     sdr.rx_lo = TX_FREQ
@@ -170,7 +170,7 @@ def main():
     sdr.rx_buffer_size = RX_BUFFER_SAMPLES
 
     # Explicitly select RX1A port for Pluto+
-    sdr._ctrl.find_channel("voltage0", False).attrs["rf_port_select"].value = "B_BALANCED"
+    #sdr._ctrl.find_channel("voltage0", False).attrs["rf_port_select"].value = "B_BALANCED"
 
     print(f"[*] RX port: {sdr._ctrl.find_channel('voltage0', False).attrs['rf_port_select'].value}")
     print(f"[*] RX gain mode: {sdr.gain_control_mode_chan0}")
