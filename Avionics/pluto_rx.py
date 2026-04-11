@@ -233,7 +233,7 @@ def main():
 def capture_diagnostic():
     """Capture raw IQ when signal detected, save to file for offline analysis."""
     print("[*] Connecting to PlutoSDR RX...")
-    sdr = adi.Pluto("usb:")
+    sdr = adi.Pluto("usb:7.3.5")
     sdr.sample_rate             = SAMPLE_RATE
     sdr.rx_rf_bandwidth         = TX_BW
     sdr.rx_lo                   = TX_FREQ

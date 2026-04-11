@@ -71,22 +71,29 @@ class PlutoTX:
         """Called by LiveVideo.py for each H264 chunk."""
         for i in range(0, len(data), CHUNK_SIZE):
             chunk = data[i:i + CHUNK_SIZE]
-            if not self._queue.full():
+            if self._queue.full():
+                print(f"[PlutoTX] Queue FULL — dropping chunk (queue={self._queue.qsize()})")
+            else:
                 self._queue.put(chunk)
 
     def _worker(self):
+        bursts   = 0
+        empties  = 0
         while True:
             try:
-                chunk   = self._queue.get(timeout=0.5)
-                frame   = _framer(chunk, self._seq)
+                chunk  = self._queue.get(timeout=0.1)
+                frame  = _framer(chunk, self._seq)
                 self._seq = (self._seq + 1) % 0xFFFFFFFF
                 symbols = _to_qpsk(frame, TX_BUFFER_SAMPLES)
                 self._sdr.tx(symbols)
+                bursts += 1
+                if bursts % 50 == 0:
+                    print(f"[PlutoTX] tx={bursts} empty_waits={empties} queue={self._queue.qsize()}")
             except queue.Empty:
-                # Keep transmitting zeros to hold buffer
-                self._sdr.tx(np.zeros(TX_BUFFER_SAMPLES, dtype=np.complex64))
-            except Exception as e:
-                print(f"[PlutoTX ERROR] {e}")
+                empties += 1
+                # Send preamble pattern to keep PLL locked during gaps
+                preamble = np.tile([1+0j, -1+0j], TX_BUFFER_SAMPLES // 2).astype(np.complex64)
+                self._sdr.tx(preamble * (2**13))
 
     def stop(self):
         try:
