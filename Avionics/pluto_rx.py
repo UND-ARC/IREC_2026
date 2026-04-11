@@ -13,6 +13,8 @@ SAMPLE_RATE       = 10_000_000
 RX_GAIN           = 20
 RX_BUFFER_SAMPLES = 8192
 PREAMBLE_LEN      = 64
+SIGNAL_THRESHOLD = 100_000   # real signal only — above preamble filler (~2500)
+MAX_SAMPLE_BUF   = RX_BUFFER_SAMPLES * 20  # max 20 buffers before forced processing
 # ==========================================
 
 SYNC = b'\xDE\xAD\xBE\xEF'
@@ -113,46 +115,44 @@ def display_worker(h264_queue: queue.Queue):
     proc.terminate()
 
 def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
-    """
-    Symbol-by-symbol QPSK demod with a phase tracking PLL.
-    Handles frequency offsets that spin the constellation.
-    """
-    # Skip preamble
+    """Vectorized QPSK demod with phase tracking — faster than sample-by-sample."""
     data = samples[PREAMBLE_LEN:].copy()
     n    = len(data)
+    if n == 0:
+        return b''
 
-    # PLL parameters — tune these if lock is unstable
-    alpha      = 0.1    # phase correction gain
-    beta       = 0.001  # frequency correction gain
-    phase      = 0.0
-    freq       = 0.0
+    alpha  = 0.1
+    beta   = 0.001
+    phase  = 0.0
+    freq   = 0.0
 
+    # Process in blocks of 256 for speed vs accuracy tradeoff
+    BLOCK  = 256
     i_bits = np.zeros(n, dtype=np.uint8)
     q_bits = np.zeros(n, dtype=np.uint8)
 
-    for k in range(n):
-        # Apply current phase correction
-        corrected = data[k] * np.exp(-1j * phase)
+    for start in range(0, n, BLOCK):
+        end   = min(start + BLOCK, n)
+        block = data[start:end]
 
-        # Hard decision
-        i_bit = 1 if np.real(corrected) > 0 else 0
-        q_bit = 1 if np.imag(corrected) > 0 else 0
-        i_bits[k] = i_bit
-        q_bits[k] = q_bit
+        # Apply phase correction to whole block at once
+        t         = np.arange(len(block))
+        phase_vec = phase + freq * t
+        corrected = block * np.exp(-1j * phase_vec)
 
-        # Ideal symbol location
-        i_ideal = 1.0 if i_bit else -1.0
-        q_ideal = 1.0 if q_bit else -1.0
+        ib = (np.real(corrected) > 0).astype(np.uint8)
+        qb = (np.imag(corrected) > 0).astype(np.uint8)
+        i_bits[start:end] = ib
+        q_bits[start:end] = qb
 
-        # Phase error = cross product of received vs ideal
-        error = (np.real(corrected) * q_ideal -
-                 np.imag(corrected) * i_ideal)
+        # Update PLL using last sample of block
+        last     = corrected[-1]
+        i_ideal  = 1.0 if ib[-1] else -1.0
+        q_ideal  = 1.0 if qb[-1] else -1.0
+        error    = np.real(last) * q_ideal - np.imag(last) * i_ideal
+        freq    += beta * error
+        phase   += alpha * error + freq * len(block)
 
-        # Update PLL
-        freq  += beta * error
-        phase += alpha * error + freq
-
-    # Pack bits
     bits = np.empty(n * 2, dtype=np.uint8)
     bits[0::2] = i_bits
     bits[1::2] = q_bits
@@ -193,19 +193,26 @@ def main():
 
     try:
         while True:
-            new_samples = sdr.rx()
-            sample_buf = np.concatenate([sample_buf, new_samples.astype(np.complex64)])
+            new_samples = sdr.rx().astype(np.complex64)
+            power = np.mean(np.abs(new_samples) ** 2)
             rx_attempts += 1
 
-            while len(sample_buf) >= RX_BUFFER_SAMPLES:
-                chunk = sample_buf[:RX_BUFFER_SAMPLES]
-                sample_buf = sample_buf[RX_BUFFER_SAMPLES:]
+            if power > SIGNAL_THRESHOLD:
+                sample_buf = np.concatenate([sample_buf, new_samples])
 
-                result = demod_with_phase_tracking(chunk)
-                buf.extend(result)
-                if SYNC in result:
-                    sync_hits += 1
+            # Process when signal drops or buffer gets too large
+            if power <= SIGNAL_THRESHOLD or len(sample_buf) >= MAX_SAMPLE_BUF:
+                if len(sample_buf) >= RX_BUFFER_SAMPLES:
+                    while len(sample_buf) >= RX_BUFFER_SAMPLES:
+                        chunk = sample_buf[:RX_BUFFER_SAMPLES]
+                        sample_buf = sample_buf[RX_BUFFER_SAMPLES:]
+                        result = demod_with_phase_tracking(chunk)
+                        buf.extend(result)
+                        if SYNC in result:
+                            sync_hits += 1
+                    sample_buf = np.array([], dtype=np.complex64)
 
+            # Cap buf
             if len(buf) > 1024 * 512:
                 buf = buf[-1024 * 64:]
 
@@ -220,10 +227,9 @@ def main():
                     h264_queue.put(payload)
 
             if rx_attempts % 100 == 0:
-                power = np.mean(np.abs(new_samples) ** 2)
                 print(f"[DIAG] buffers={rx_attempts} | sync_hits={sync_hits} "
                       f"| packets={total_pkts} | dropped={dropped_pkts} "
-                      f"| power={power:.1f} | buf_len={len(buf)} "
+                      f"| power={power:.0f} | buf_len={len(buf)} "
                       f"| sample_buf={len(sample_buf)}")
 
     except KeyboardInterrupt:

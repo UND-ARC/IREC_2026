@@ -54,25 +54,13 @@ def apply_overlay(request):
 
 class PlutoOutput(io.RawIOBase):
     def __init__(self, pluto_tx: PlutoTX):
-        self._tx        = pluto_tx
-        self._last_send = time.monotonic()
-        # Max bytes/sec = 800kbps / 8 = 100KB/s, add 20% headroom
-        self._max_bps   = 80_000   # bytes per second
+        self._tx = pluto_tx
 
     def writable(self):
         return True
 
     def write(self, b):
-        now     = time.monotonic()
-        elapsed = now - self._last_send
-        allowed = int(elapsed * self._max_bps)
-
-        if allowed < len(b):
-            # Brief sleep to let TX drain
-            time.sleep((len(b) - allowed) / self._max_bps)
-
-        self._tx.send(bytes(b))
-        self._last_send = time.monotonic()
+        self._tx.send(bytes(b))  # send() already drops if queue full — no sleep needed
         return len(b)
 
 
