@@ -162,18 +162,18 @@ def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
 def main():
     print("[*] Connecting to PlutoSDR RX...")
     sdr = adi.Pluto("usb:")
-    sdr.sample_rate             = SAMPLE_RATE
-    sdr.rx_rf_bandwidth         = TX_BW
-    sdr.rx_lo                   = TX_FREQ
-    sdr.tx_lo = TX_FREQ
-    # Force both sides to use the same reference
-    sdr._ctrl.attrs["dcxo_tune_coarse"].value = "0"
-    sdr._ctrl.attrs["dcxo_tune_fine"].value = "0"
+    sdr.sample_rate = SAMPLE_RATE
+    sdr.rx_rf_bandwidth = TX_BW
+    sdr.rx_lo = TX_FREQ
     sdr.gain_control_mode_chan0 = "fast_attack"
-    #sdr.gain_control_mode_chan0 = "manual"
-    #sdr.rx_hardwaregain_chan0   = RX_GAIN
-    sdr.rx_buffer_size          = RX_BUFFER_SAMPLES
-    print(f"[*] PlutoSDR RX ready at {TX_FREQ/1e6:.1f} MHz")
+    sdr.rx_buffer_size = RX_BUFFER_SAMPLES
+
+    # Explicitly select RX1A port for Pluto+
+    sdr._ctrl.find_channel("voltage0", False).attrs["rf_port_select"].value = "A_BALANCED"
+
+    print(f"[*] RX port: {sdr._ctrl.find_channel('voltage0', False).attrs['rf_port_select'].value}")
+    print(f"[*] RX gain mode: {sdr.gain_control_mode_chan0}")
+    print(f"[*] PlutoSDR RX ready at {TX_FREQ / 1e6:.1f} MHz")
 
     h264_queue = queue.Queue(maxsize=60)
     threading.Thread(target=display_worker, args=(h264_queue,), daemon=True).start()

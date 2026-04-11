@@ -53,19 +53,16 @@ def _to_qpsk(data: bytes, target_len: int) -> np.ndarray:
 class PlutoTX:
     def __init__(self):
         print("[PlutoTX] Connecting to PlutoSDR...")
-        sdr = adi.Pluto("usb:")
-        sdr.sample_rate = SAMPLE_RATE
-        sdr.rx_rf_bandwidth = TX_BW
-        sdr.rx_lo = TX_FREQ
-        sdr.gain_control_mode_chan0 = "fast_attack"
-        sdr.rx_buffer_size = TX_BUFFER_SAMPLES
+        self._sdr = adi.Pluto("usb:")
+        self._sdr.sample_rate = SAMPLE_RATE
+        self._sdr.tx_rf_bandwidth = TX_BW
+        self._sdr.tx_lo = TX_FREQ
+        self._sdr.tx_hardwaregain_chan0 = TX_GAIN
 
-        # Explicitly select RX1A port for Pluto+
-        sdr._ctrl.find_channel("voltage0", False).attrs["rf_port_select"].value = "A_BALANCED"
-
-        print(f"[*] RX port: {sdr._ctrl.find_channel('voltage0', False).attrs['rf_port_select'].value}")
-        print(f"[*] RX gain mode: {sdr.gain_control_mode_chan0}")
-        print(f"[*] PlutoSDR RX ready at {TX_FREQ / 1e6:.1f} MHz")
+        # Verify settings actually applied
+        print(f"[PlutoTX] Verified TX gain: {self._sdr.tx_hardwaregain_chan0} dB")
+        print(f"[PlutoTX] Verified TX LO: {self._sdr.tx_lo / 1e6:.1f} MHz")
+        print(f"[PlutoTX] Verified sample rate: {self._sdr.sample_rate / 1e6:.1f} Msps")
 
         # Force TX1A port on Pluto+
         self._sdr._ctrl.find_channel("voltage0", True).attrs["rf_port_select"].value = "A"
