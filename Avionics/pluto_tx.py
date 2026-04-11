@@ -54,10 +54,15 @@ class PlutoTX:
     def __init__(self):
         print("[PlutoTX] Connecting to PlutoSDR...")
         self._sdr = adi.Pluto("usb:")
-        self._sdr.sample_rate           = SAMPLE_RATE
-        self._sdr.tx_rf_bandwidth       = TX_BW
-        self._sdr.tx_lo                 = TX_FREQ
-        self._sdr.tx_hardwaregain_chan0  = TX_GAIN
+        self._sdr.sample_rate = SAMPLE_RATE
+        self._sdr.tx_rf_bandwidth = TX_BW
+        self._sdr.tx_lo = TX_FREQ
+        self._sdr.tx_hardwaregain_chan0 = TX_GAIN
+
+        # Verify settings actually applied
+        print(f"[PlutoTX] Verified TX gain: {self._sdr.tx_hardwaregain_chan0} dB")
+        print(f"[PlutoTX] Verified TX LO: {self._sdr.tx_lo / 1e6:.1f} MHz")
+        print(f"[PlutoTX] Verified sample rate: {self._sdr.sample_rate / 1e6:.1f} Msps")
 
         # Force TX port on Rev.C via existing pyadi-iio context
         self._sdr._ctrl.find_channel("voltage0", True).attrs["rf_port_select"].value = "A"
