@@ -8,9 +8,9 @@ import queue
 
 # ==========================================
 TX_FREQ           = 915_000_000
-TX_BW             = 5_000_000
-SAMPLE_RATE       = 5_000_000
-RX_GAIN           = 40
+TX_BW             = 10_000_000
+SAMPLE_RATE       = 10_000_000
+RX_GAIN           = 20
 RX_BUFFER_SAMPLES = 8192
 PREAMBLE_LEN      = 64
 # ==========================================

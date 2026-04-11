@@ -10,10 +10,10 @@ import struct
 # ==========================================
 TX_FREQ           = 915_000_000
 TX_BW             = 5_000_000
-SAMPLE_RATE       = 5_000_000
+SAMPLE_RATE       = 10_000_000
 TX_GAIN           = -50
-TX_BUFFER_SAMPLES = 4096
-CHUNK_SIZE        = 512
+TX_BUFFER_SAMPLES = 8192
+CHUNK_SIZE        = 1024
 PREAMBLE_LEN      = 64   # must match pluto_rx.py
 # ==========================================
 
@@ -62,7 +62,7 @@ class PlutoTX:
         self._sdr.tx_buffer_size        = TX_BUFFER_SAMPLES
         print(f"[PlutoTX] Ready at {TX_FREQ/1e6:.1f} MHz, gain={TX_GAIN} dB")
 
-        self._queue  = queue.Queue(maxsize=30)
+        self._queue  = queue.Queue(maxsize=200)
         self._seq    = 0
         self._thread = threading.Thread(target=self._worker, daemon=True)
         self._thread.start()
