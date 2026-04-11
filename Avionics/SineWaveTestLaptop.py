@@ -1,7 +1,7 @@
 import adi
 import numpy as np
 
-sdr = adi.Pluto("usb:7.5.5")
+sdr = adi.Pluto("usb:5.6.5")
 sdr.sample_rate             = int(1e6)
 sdr.rx_rf_bandwidth         = int(1e6)
 sdr.rx_lo                   = int(915e6)
