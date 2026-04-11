@@ -10,7 +10,7 @@ import queue
 TX_FREQ           = 915_000_000
 TX_BW             = 10_000_000
 SAMPLE_RATE       = 10_000_000
-RX_GAIN           = 50
+RX_GAIN           = 20
 RX_BUFFER_SAMPLES = 8192
 PREAMBLE_LEN      = 64
 # ==========================================
@@ -169,8 +169,9 @@ def main():
     # Force both sides to use the same reference
     sdr._ctrl.attrs["dcxo_tune_coarse"].value = "0"
     sdr._ctrl.attrs["dcxo_tune_fine"].value = "0"
-    sdr.gain_control_mode_chan0 = "manual"
-    sdr.rx_hardwaregain_chan0   = RX_GAIN
+    sdr.gain_control_mode_chan0 = "fast_attack"
+    #sdr.gain_control_mode_chan0 = "manual"
+    #sdr.rx_hardwaregain_chan0   = RX_GAIN
     sdr.rx_buffer_size          = RX_BUFFER_SAMPLES
     print(f"[*] PlutoSDR RX ready at {TX_FREQ/1e6:.1f} MHz")
 
