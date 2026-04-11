@@ -3,7 +3,6 @@ import numpy as np
 import threading
 import queue
 import struct
-import iio
 
 
 # ==========================================
@@ -60,12 +59,8 @@ class PlutoTX:
         self._sdr.tx_lo                 = TX_FREQ
         self._sdr.tx_hardwaregain_chan0  = TX_GAIN
 
-        # Explicitly force TX port on Rev.C hardware
-
-        ctx = iio.Context("usb:")
-        phy = ctx.find_device("ad9361-phy")
-        phy.find_channel("voltage0", True).attrs["rf_port_select"].value = "A"
-        del ctx  # release before pyadi-iio uses the device
+        # Force TX port on Rev.C via existing pyadi-iio context
+        self._sdr._ctrl.find_channel("voltage0", True).attrs["rf_port_select"].value = "A"
 
         self._sdr.tx_cyclic_buffer      = False
         self._sdr.tx_buffer_size        = TX_BUFFER_SAMPLES
