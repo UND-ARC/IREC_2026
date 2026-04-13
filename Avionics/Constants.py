@@ -1,6 +1,8 @@
-#Pluto_Ground_IP = "192.168.2.110"# for some reason the config file didn't set the correct address so don't use this
+
+
+Pluto_Ground_IP = "ip:10.42.0.133"
 Pluto_Ground_Hostname = "ip:pluto-ground.local"
-#Pluto_Pi_IP = "192.168.2.90" # for some reason the config file didn't set the correct address so don't use this
+Pluto_Pi_IP = "ip:10.42.0.134"
 Pluto_Pi_Hostname = "ip:pluto-pi.local"
 
 Laptop_IP = "10.42.0.1"
@@ -18,14 +20,21 @@ else:
 
 MODE_STR = "FLIGHT" if IS_FLIGHT_MODE else "BENCH"
 
-TX_FREQ           = 915_000_000
-TX_BW             = 10_000_000
-SAMPLE_RATE       = 10_000_000
-RX_GAIN           = 20
+
+
+
+RX_FREQ    = 915_000_000
+RX_GAIN           = 20   # dB, 0 to 73
 RX_BUFFER_SAMPLES = 8192
 
-TX_GAIN           = -50
+TX_FREQ           = 915_000_000
+TX_BW             = 10_000_000
+TX_GAIN           = -50 # dB, -90 to 0
 TX_BUFFER_SAMPLES = 8192
 
 CHUNK_SIZE        = 1024
 PREAMBLE_LEN      = 64
+SAMP_RATE       = 1_000_000
+SPS        = 4           # samples per symbol
+
+

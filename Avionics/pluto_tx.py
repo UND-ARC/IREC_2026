@@ -54,7 +54,7 @@ def _to_qpsk(data: bytes, target_len: int) -> np.ndarray:
 class PlutoTX:
     def __init__(self):
         print("[PlutoTX] Connecting to PlutoSDR...")
-        self._sdr = adi.Pluto(Constants.Pluto_Pi_Hostname)
+        self._sdr = adi.Pluto(Constants.Pluto_Pi_IP)
         self._sdr.sample_rate = SAMPLE_RATE
         self._sdr.tx_rf_bandwidth = TX_BW
         self._sdr.tx_lo = TX_FREQ

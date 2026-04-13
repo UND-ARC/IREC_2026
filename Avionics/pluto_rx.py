@@ -163,7 +163,7 @@ def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
 
 def main():
     print("[*] Connecting to PlutoSDR RX...")
-    sdr = adi.Pluto(Constants.Pluto_Ground_Hostname)
+    sdr = adi.ad9361(uri=Constants.Pluto_Ground_Hostname)
     sdr.sample_rate = SAMPLE_RATE
     sdr.rx_rf_bandwidth = TX_BW
     sdr.rx_lo = TX_FREQ
