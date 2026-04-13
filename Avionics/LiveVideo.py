@@ -7,30 +7,16 @@ from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
 from pluto_tx import PlutoTX
+import Constants
 
-# ==========================================
-# MISSION CONFIGURATION
-# ==========================================
-IS_FLIGHT_MODE = True   # Set TRUE for 30k ft Launch
-USE_OVERLAY    = True    # Set TRUE to draw telemetry overlay
-
-GROUND_STATION_IP = "10.42.0.1"
-PORT              = 10001
-
-PLUTO_UDP_IP   = "127.0.0.1"
-PLUTO_UDP_PORT = 10002
-PLUTO_CHUNK    = 1024
-
-if IS_FLIGHT_MODE:
+if Constants.IS_FLIGHT_MODE:
     BITRATE = 800_000
     IDR_VAL = 15
 else:
     BITRATE = 3_000_000
     IDR_VAL  = 60
 
-MODE_STR = "FLIGHT" if IS_FLIGHT_MODE else "BENCH"
-# ==========================================
-
+MODE_STR = "FLIGHT" if Constants.IS_FLIGHT_MODE else "BENCH"
 
 def get_telemetry():
     """Simulated data — replace with real sensor reads for flight"""
@@ -38,7 +24,7 @@ def get_telemetry():
 
 
 def apply_overlay(request):
-    if not USE_OVERLAY:
+    if not Constants.USE_OVERLAY:
         return
     h, w, banner_h = 720, 1280, 50
     data   = get_telemetry()
@@ -81,26 +67,26 @@ def main():
     )
     picam2.configure(config)
 
-    if USE_OVERLAY:
+    if Constants.USE_OVERLAY:
         picam2.pre_callback = apply_overlay
 
-    print(f"[*] Starting {MODE_STR} MODE (Overlay: {USE_OVERLAY})")
+    print(f"[*] Starting {MODE_STR} MODE (Overlay: {Constants.USE_OVERLAY})")
 
     encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL)
 
     tcp_sock   = None
 
     try:
-        if IS_FLIGHT_MODE:
+        if Constants.IS_FLIGHT_MODE:
             pluto_tx = PlutoTX()
             pluto_out = PlutoOutput(pluto_tx)
             output = FileOutput(io.BufferedWriter(pluto_out))
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
-            print(f"[*] Connecting to GS at {GROUND_STATION_IP}:{PORT}...")
+            print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")
             tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             tcp_sock.settimeout(10.0)
-            tcp_sock.connect((GROUND_STATION_IP, PORT))
+            tcp_sock.connect((Constants.Laptop_IP, Constants.Laptop_Port))
             tcp_sock.settimeout(None)
             print(f"[*] Connected!")
             output = FileOutput(tcp_sock.makefile("wb"))
@@ -129,7 +115,7 @@ def main():
             tcp_sock.close()
         
 
-        if IS_FLIGHT_MODE:
+        if Constants.IS_FLIGHT_MODE:
             try:
                 pluto_tx.stop()
             except:

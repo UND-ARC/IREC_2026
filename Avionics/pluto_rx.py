@@ -161,7 +161,7 @@ def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
 
 def main():
     print("[*] Connecting to PlutoSDR RX...")
-    sdr = adi.Pluto("usb:7.2.5")
+    sdr = adi.Pluto("usb:5.6.5")
     sdr.sample_rate = SAMPLE_RATE
     sdr.rx_rf_bandwidth = TX_BW
     sdr.rx_lo = TX_FREQ
