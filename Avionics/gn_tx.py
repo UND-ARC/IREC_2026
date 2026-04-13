@@ -82,18 +82,16 @@ class TxFlowgraph(gr.top_block):
         self.scale     = blocks.multiply_const_cc(0.9)
 
         # PlutoSDR sink
-        self.pluto     = iio.pluto_sink(
-            uri         = Constants.Pluto_Pi_IP,
-            frequency   = Constants.TX_FREQ,
-            samplerate  = Constants.SAMP_RATE,
-            bandwidth   = Constants.SAMP_RATE,
-            buffer_size = 32768,
-            attenuation1 = abs(Constants.TX_GAIN),
-            filter_source = '',
-            filter_filename = '',
-            Fpass       = 0,
-            Fstop       = 0,
+        self.pluto = iio.fmcomms2_sink_fc32(
+            uri=Constants.Pluto_Pi_IP,
+            ch_en=[True, False, False, False],
+            buffer_size=32768,
         )
+        self.pluto.set_frequency(Constants.TX_FREQ)
+        self.pluto.set_samplerate(Constants.SAMP_RATE)
+        self.pluto.set_bandwidth(Constants.SAMP_RATE)
+        self.pluto.set_attenuation(0, abs(Constants.TX_GAIN))
+        self.pluto.set_filter_source('')
 
         # --- Connect ---
         self.connect(self.src, self.pack, self.mod, self.scale, self.pluto)

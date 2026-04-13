@@ -67,22 +67,19 @@ class RxFlowgraph(gr.top_block):
         gr.top_block.__init__(self, "QPSK RX")
 
         # --- Blocks ---
-        self.pluto = iio.pluto_source(
-            uri         =Constants.Pluto_Ground_IP,
-            frequency   = Constants.RX_FREQ,
-            samplerate  = Constants.SAMP_RATE,
-            bandwidth   = Constants.SAMP_RATE,
-            buffer_size = 32768,
-            gain1       = "manual",
-            manual_gain1 = Constants.RX_GAIN,
-            quadrature  = True,
-            rfdc        = True,
-            bbdc        = True,
-            filter_source = '',
-            filter_filename = '',
-            Fpass       = 0,
-            Fstop       = 0,
+        self.pluto = iio.fmcomms2_source_fc32(
+            uri=Constants.Pluto_Ground_IP,
+            ch_en=[True, False, False, False],
+            buffer_size=32768,
         )
+        self.pluto.set_frequency(Constants.RX_FREQ)
+        self.pluto.set_samplerate(Constants.SAMP_RATE)
+        #self.pluto.set_bandwidth(Constants.SAMP_RATE)
+        self.pluto.set_gain_mode(0, "manual")
+        self.pluto.set_gain(0, Constants.RX_GAIN)
+        self.pluto.set_quadrature(True)
+        self.pluto.set_rfdc(True)
+        self.pluto.set_bbdc(True)
 
         # QPSK demod — GNU Radio handles all sync automatically
         constellation = digital.constellation_qpsk().base()
