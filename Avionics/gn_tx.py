@@ -86,12 +86,12 @@ class TxFlowgraph(gr.top_block):
             uri=Constants.Pluto_Pi_IP,
             ch_en=[True, False, False, False],
             buffer_size=32768,
+            cyclic=False,
         )
         self.pluto.set_frequency(Constants.TX_FREQ)
         self.pluto.set_samplerate(Constants.SAMP_RATE)
         self.pluto.set_bandwidth(Constants.SAMP_RATE)
         self.pluto.set_attenuation(0, abs(Constants.TX_GAIN))
-        self.pluto.set_filter_source('')
 
         # --- Connect ---
         self.connect(self.src, self.pack, self.mod, self.scale, self.pluto)
