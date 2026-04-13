@@ -6,6 +6,8 @@ import subprocess
 import threading
 import queue
 
+import Constants
+
 # ==========================================
 TX_FREQ           = 915_000_000
 TX_BW             = 10_000_000
@@ -161,7 +163,7 @@ def demod_with_phase_tracking(samples: np.ndarray) -> bytes:
 
 def main():
     print("[*] Connecting to PlutoSDR RX...")
-    sdr = adi.Pluto("usb:5.6.5")
+    sdr = adi.Pluto(Constants.Pluto_Ground_Hostname)
     sdr.sample_rate = SAMPLE_RATE
     sdr.rx_rf_bandwidth = TX_BW
     sdr.rx_lo = TX_FREQ

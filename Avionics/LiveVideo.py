@@ -9,14 +9,9 @@ from picamera2.outputs import FileOutput
 from pluto_tx import PlutoTX
 import Constants
 
-if Constants.IS_FLIGHT_MODE:
-    BITRATE = 800_000
-    IDR_VAL = 15
-else:
-    BITRATE = 3_000_000
-    IDR_VAL  = 60
 
-MODE_STR = "FLIGHT" if Constants.IS_FLIGHT_MODE else "BENCH"
+
+
 
 def get_telemetry():
     """Simulated data — replace with real sensor reads for flight"""
@@ -29,7 +24,7 @@ def apply_overlay(request):
     h, w, banner_h = 720, 1280, 50
     data   = get_telemetry()
     ov_text = (f"  ALT: {data['alt']} ft  |  GPS: {data['gps']}  |  "
-               f"{MODE_STR}  |  {time.strftime('%H:%M:%S')}")
+               f"{Constants.MODE_STR}  |  {time.strftime('%H:%M:%S')}")
     with MappedArray(request, "main") as m:
         m.array[h - banner_h:h, :] = 0          # black bar
         cv2.putText(
@@ -70,9 +65,9 @@ def main():
     if Constants.USE_OVERLAY:
         picam2.pre_callback = apply_overlay
 
-    print(f"[*] Starting {MODE_STR} MODE (Overlay: {Constants.USE_OVERLAY})")
+    print(f"[*] Starting {Constants.MODE_STR} MODE (Overlay: {Constants.USE_OVERLAY})")
 
-    encoder = H264Encoder(bitrate=BITRATE, iperiod=IDR_VAL)
+    encoder = H264Encoder(bitrate=Constants.BITRATE, iperiod=Constants.IDR_VAL)
 
     tcp_sock   = None
 
