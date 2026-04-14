@@ -3,6 +3,9 @@ import time
 import cv2
 import numpy as np
 import io
+
+from black import output
+from cv2.datasets import none
 from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
@@ -68,6 +71,7 @@ def main():
     }
 
     tcp_sock   = None
+    videoOutput = None
 
     try:
         if Constants.IS_FLIGHT_MODE:
@@ -75,7 +79,7 @@ def main():
 
             tcp_sock.connect(("127.0.0.1", 9000))
 
-            picam2.start_recording(H264Encoder(), PyavOutput(f"pipe:{tcp_sock.fileno()}", format="mpegts"))
+            videoOutput =  PyavOutput(f"pipe:{tcp_sock.fileno()}", format="mpegts")
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")
@@ -84,10 +88,10 @@ def main():
             tcp_sock.connect((Constants.Laptop_IP, Constants.Laptop_Port))
             tcp_sock.settimeout(None)
             print(f"[*] Connected!")
-            output = FileOutput(tcp_sock.makefile("wb"))
+            videoOutput = FileOutput(tcp_sock.makefile("wb"))
 
         # Start recording AFTER output is ready
-        picam2.start_recording(encoder, output)
+        picam2.start_recording(encoder, videoOutput)
         print(f"[!] VIDEO LINK ACTIVE")
 
         while True:
