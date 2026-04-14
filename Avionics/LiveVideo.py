@@ -6,7 +6,7 @@ import io
 from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
-from pluto_tx import PlutoTX
+from picamera2.outputs import FfmpegOutput
 import Constants
 
 
@@ -33,16 +33,6 @@ def apply_overlay(request):
         )
 
 
-class PlutoOutput(io.RawIOBase):
-    def __init__(self, pluto_tx: PlutoTX):
-        self._tx = pluto_tx
-
-    def writable(self):
-        return True
-
-    def write(self, b):
-        self._tx.send(bytes(b))  # send() already drops if queue full — no sleep needed
-        return len(b)
 
 
 class EthernetOutput(io.RawIOBase):
@@ -68,14 +58,21 @@ def main():
     print(f"[*] Starting {Constants.MODE_STR} MODE (Overlay: {Constants.USE_OVERLAY})")
 
     encoder = H264Encoder(bitrate=Constants.BITRATE, iperiod=Constants.IDR_VAL)
+    encoder.options = {
+        "bitrate": Constants.BITRATE,
+        "iperiod": Constants.IDR_VAL,
+        "preset": "ultrafast",
+        "tune": "zerolatency"
+    }
 
     tcp_sock   = None
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            pluto_tx = PlutoTX()
-            pluto_out = PlutoOutput(pluto_tx)
-            output = FileOutput(io.BufferedWriter(pluto_out))
+            output = FfmpegOutput("udp://127.0.0.1:5000?pkt_size=1316", format="mpegts")
+
+            encoder.output = output
+            encoder.start()
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")

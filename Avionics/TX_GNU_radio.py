@@ -8,7 +8,6 @@
 # Title: Not titled yet
 # GNU Radio version: 3.10.12.0
 
-from gnuradio import analog
 from gnuradio import digital
 from gnuradio import gr
 from gnuradio.filter import firdes
@@ -19,6 +18,7 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import iio
+from gnuradio import network
 import threading
 
 
@@ -39,6 +39,7 @@ class TX_GNU_radio(gr.top_block):
         # Blocks
         ##################################################
 
+        self.network_udp_source_0 = network.udp_source(gr.sizeof_char, 1, 5000, 0, 1316, False, False, False)
         self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('192.168.3.1' if '192.168.3.1' else iio.get_pluto_uri(), [True, True], 32768, False)
         self.iio_pluto_sink_0.set_len_tag_key('')
         self.iio_pluto_sink_0.set_bandwidth(20000000)
@@ -55,14 +56,13 @@ class TX_GNU_radio(gr.top_block):
             verbose=False,
             log=False,
             truncate=False)
-        self.analog_sig_source_x_0 = analog.sig_source_b(samp_rate, analog.GR_CONST_WAVE, 1000, 0xFF, 0, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.digital_constellation_modulator_0, 0))
         self.connect((self.digital_constellation_modulator_0, 0), (self.iio_pluto_sink_0, 0))
+        self.connect((self.network_udp_source_0, 0), (self.digital_constellation_modulator_0, 0))
 
 
     def get_samp_rate(self):
@@ -70,7 +70,6 @@ class TX_GNU_radio(gr.top_block):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
         self.iio_pluto_sink_0.set_samplerate(self.samp_rate)
 
 
