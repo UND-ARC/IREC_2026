@@ -80,8 +80,10 @@ def main():
             ]
             ffmpeg_proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
 
+            main_stream = picam2.streams["main"]
+
             encoder.output = FileOutput(ffmpeg_proc.stdin)
-            encoder.start()
+            encoder.start(main_stream)
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")
