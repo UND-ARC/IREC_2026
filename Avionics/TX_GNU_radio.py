@@ -44,7 +44,7 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_bandwidth(20000000)
         self.iio_pluto_sink_0.set_frequency(915000000)
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
-        self.iio_pluto_sink_0.set_attenuation(0, -50)
+        self.iio_pluto_sink_0.set_attenuation(0, -30)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
         self.digital_constellation_modulator_0 = digital.generic_mod(
             constellation=digital.constellation_qpsk().base(),
@@ -55,7 +55,7 @@ class TX_GNU_radio(gr.top_block):
             verbose=False,
             log=False,
             truncate=False)
-        self.analog_sig_source_x_0 = analog.sig_source_b(samp_rate, analog.GR_CONST_WAVE, 1000, 0x44, 0, 0)
+        self.analog_sig_source_x_0 = analog.sig_source_b(samp_rate, analog.GR_CONST_WAVE, 1000, 0xFF, 0, 0)
 
 
         ##################################################

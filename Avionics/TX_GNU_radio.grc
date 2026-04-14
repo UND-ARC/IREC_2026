@@ -50,7 +50,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    amp: '0x44'
+    amp: '0xFF'
     comment: ''
     freq: '1000'
     maxoutbuf: '0'
@@ -95,7 +95,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    attenuation1: '-50'
+    attenuation1: '-30'
     bandwidth: '20000000'
     buffer_size: '32768'
     comment: ''
