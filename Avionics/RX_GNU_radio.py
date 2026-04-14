@@ -10,6 +10,7 @@
 
 from PyQt5 import Qt
 from gnuradio import qtgui
+from PyQt5 import QtCore
 from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import filter
@@ -65,12 +66,24 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
+        self.bit_slip = bit_slip = 0
         self.SampleRate = SampleRate = 1_000_000
+        self.Loop_Band_width = Loop_Band_width = .01
+        self.Freq_shift = Freq_shift = 0
 
         ##################################################
         # Blocks
         ##################################################
 
+        self._bit_slip_range = qtgui.Range(0, 7, 1, 0, 200)
+        self._bit_slip_win = qtgui.RangeWidget(self._bit_slip_range, self.set_bit_slip, "bit_slip", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._bit_slip_win)
+        self._Loop_Band_width_range = qtgui.Range(0, .1, .001, .01, 200)
+        self._Loop_Band_width_win = qtgui.RangeWidget(self._Loop_Band_width_range, self.set_Loop_Band_width, "Loop_Band_width", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._Loop_Band_width_win)
+        self._Freq_shift_range = qtgui.Range(-20000, 20000, 50, 0, 200)
+        self._Freq_shift_win = qtgui.RangeWidget(self._Freq_shift_range, self.set_Freq_shift, "Freq_shift", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._Freq_shift_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
             1024, #size
             SampleRate, #samp_rate
@@ -129,8 +142,8 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             None # parent
         )
         self.qtgui_const_sink_x_0.set_update_time(0.10)
-        self.qtgui_const_sink_x_0.set_y_axis((-2), 2)
-        self.qtgui_const_sink_x_0.set_x_axis((-2), 2)
+        self.qtgui_const_sink_x_0.set_y_axis((-1), 1)
+        self.qtgui_const_sink_x_0.set_x_axis((-1), 1)
         self.qtgui_const_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, "")
         self.qtgui_const_sink_x_0.enable_autoscale(False)
         self.qtgui_const_sink_x_0.enable_grid(False)
@@ -175,18 +188,20 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
                 6.76))
         self.iio_pluto_source_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 32768)
         self.iio_pluto_source_0.set_len_tag_key('packet_len')
-        self.iio_pluto_source_0.set_frequency(915000000)
+        self.iio_pluto_source_0.set_frequency((915000000 + Freq_shift))
         self.iio_pluto_source_0.set_samplerate(SampleRate)
         self.iio_pluto_source_0.set_gain_mode(0, 'manual')
-        self.iio_pluto_source_0.set_gain(0, 20)
+        self.iio_pluto_source_0.set_gain(0, 10)
         self.iio_pluto_source_0.set_quadrature(True)
         self.iio_pluto_source_0.set_rfdc(True)
         self.iio_pluto_source_0.set_bbdc(True)
         self.iio_pluto_source_0.set_filter_params('Auto', '', 0, 0)
-        self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(4, 0.0628, firdes.root_raised_cosine(32, 32, 1.0/4, 0.35, 32*4), 32, 0, 1.5, 1)
-        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(0.0628, 4, False)
+        self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(4, Loop_Band_width, firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32), 32, 0, 1.5, 1)
+        self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(4, digital.DIFF_DIFFERENTIAL)
+        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(Loop_Band_width, 4, False)
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(digital.constellation_qpsk().base())
-        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(2, 8, "", False, gr.GR_MSB_FIRST)
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_char*1, bit_slip)
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/jacob/Code/IREC_2026/Avionics/rocket_flight_raw.ts', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
@@ -196,9 +211,11 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0, 0))
-        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
+        self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.low_pass_filter_0, 0))
@@ -213,6 +230,12 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
         event.accept()
 
+    def get_bit_slip(self):
+        return self.bit_slip
+
+    def set_bit_slip(self, bit_slip):
+        self.bit_slip = bit_slip
+
     def get_SampleRate(self):
         return self.SampleRate
 
@@ -221,6 +244,21 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0.set_samplerate(self.SampleRate)
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.SampleRate, 500000, 100000, window.WIN_HAMMING, 6.76))
         self.qtgui_time_sink_x_0.set_samp_rate(self.SampleRate)
+
+    def get_Loop_Band_width(self):
+        return self.Loop_Band_width
+
+    def set_Loop_Band_width(self, Loop_Band_width):
+        self.Loop_Band_width = Loop_Band_width
+        self.digital_costas_loop_cc_0.set_loop_bandwidth(self.Loop_Band_width)
+        self.digital_pfb_clock_sync_xxx_0.set_loop_bandwidth(self.Loop_Band_width)
+
+    def get_Freq_shift(self):
+        return self.Freq_shift
+
+    def set_Freq_shift(self, Freq_shift):
+        self.Freq_shift = Freq_shift
+        self.iio_pluto_source_0.set_frequency((915000000 + self.Freq_shift))
 
 
 

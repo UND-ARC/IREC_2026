@@ -75,7 +75,7 @@ blocks:
     alias: ''
     comment: ''
     constellation: digital.constellation_qpsk().base()
-    differential: 'False'
+    differential: 'True'
     excess_bw: '0.35'
     log: 'False'
     maxoutbuf: '0'

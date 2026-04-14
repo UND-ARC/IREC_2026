@@ -33,6 +33,48 @@ options:
     state: enabled
 
 blocks:
+- name: Freq_shift
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Freq_shift
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-20000'
+    step: '50'
+    stop: '20000'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [296, 400.0]
+    rotation: 0
+    state: enabled
+- name: Loop_Band_width
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Loop_Band_width
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0'
+    step: '.001'
+    stop: '.1'
+    value: '.01'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [432, 408.0]
+    rotation: 0
+    state: enabled
 - name: SampleRate
   id: variable
   parameters:
@@ -42,7 +84,28 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [264, 48.0]
+    coordinate: [56, 344.0]
+    rotation: 0
+    state: enabled
+- name: bit_slip
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: bit_slip
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: int
+    start: '0'
+    step: '1'
+    stop: '7'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 320.0]
     rotation: 0
     state: enabled
 - name: blocks_file_sink_0
@@ -60,7 +123,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1104, 384.0]
+    coordinate: [992, 280.0]
     rotation: 0
     state: enabled
 - name: blocks_repack_bits_bb_0
@@ -71,7 +134,7 @@ blocks:
     align_output: 'False'
     comment: ''
     endianness: gr.GR_MSB_FIRST
-    k: '2'
+    k: '1'
     l: '8'
     len_tag_key: '""'
     maxoutbuf: '0'
@@ -80,8 +143,26 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [872, 392.0]
+    coordinate: [784, 232.0]
     rotation: 0
+    state: enabled
+- name: blocks_skiphead_0
+  id: blocks_skiphead
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: bit_slip
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [856, 176.0]
+    rotation: 180
     state: enabled
 - name: digital_constellation_decoder_cb_0
   id: digital_constellation_decoder_cb
@@ -96,7 +177,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 96.0]
+    coordinate: [816, 120.0]
     rotation: 0
     state: enabled
 - name: digital_costas_loop_cc_0
@@ -109,12 +190,29 @@ blocks:
     minoutbuf: '0'
     order: '4'
     use_snr: 'False'
-    w: '0.0628'
+    w: Loop_Band_width
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 64.0]
+    coordinate: [552, 32.0]
+    rotation: 0
+    state: enabled
+- name: digital_diff_decoder_bb_0
+  id: digital_diff_decoder_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    coding: digital.DIFF_DIFFERENTIAL
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    modulus: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1056, 96.0]
     rotation: 0
     state: enabled
 - name: digital_pfb_clock_sync_xxx_0
@@ -125,19 +223,19 @@ blocks:
     comment: ''
     filter_size: '32'
     init_phase: '0'
-    loop_bw: '0.0628'
+    loop_bw: Loop_Band_width
     max_dev: '1.5'
     maxoutbuf: '0'
     minoutbuf: '0'
     osps: '1'
     sps: '4'
-    taps: firdes.root_raised_cosine(32, 32, 1.0/4, 0.35, 32*4)
+    taps: firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32)
     type: ccf
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [528, 156.0]
+    coordinate: [320, 164.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0
@@ -152,11 +250,11 @@ blocks:
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: '915000000'
+    frequency: 915000000 + Freq_shift
     fstop: '0'
     gain1: '''manual'''
     len_tag_key: packet_len
-    manual_gain1: '20'
+    manual_gain1: '10'
     maxoutbuf: '0'
     minoutbuf: '0'
     quadrature: 'True'
@@ -168,7 +266,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 124.0]
+    coordinate: [24, 108.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -181,7 +279,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [408, 24.0]
+    coordinate: [56, 496.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_0
@@ -205,7 +303,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 168.0]
+    coordinate: [232, 16.0]
     rotation: 0
     state: enabled
 - name: network_udp_sink_0
@@ -225,7 +323,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1064, 472.0]
+    coordinate: [808, 368.0]
     rotation: 0
     state: enabled
 - name: qtgui_const_sink_x_0
@@ -309,15 +407,15 @@ blocks:
     width7: '1'
     width8: '1'
     width9: '1'
-    xmax: '2'
-    xmin: '-2'
-    ymax: '2'
-    ymin: '-2'
+    xmax: '1'
+    xmin: '-1'
+    ymax: '1'
+    ymin: '-1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1112, 192.0]
+    coordinate: [840, 24.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0
@@ -414,16 +512,18 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 216.0]
+    coordinate: [568, 208.0]
     rotation: 0
     state: enabled
 
 connections:
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0, '0']
 - [blocks_repack_bits_bb_0, '0', network_udp_sink_0, '0']
-- [digital_constellation_decoder_cb_0, '0', blocks_repack_bits_bb_0, '0']
+- [blocks_skiphead_0, '0', blocks_repack_bits_bb_0, '0']
+- [digital_constellation_decoder_cb_0, '0', digital_diff_decoder_bb_0, '0']
 - [digital_costas_loop_cc_0, '0', digital_constellation_decoder_cb_0, '0']
 - [digital_costas_loop_cc_0, '0', qtgui_const_sink_x_0, '0']
+- [digital_diff_decoder_bb_0, '0', blocks_skiphead_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', digital_costas_loop_cc_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', qtgui_time_sink_x_0, '0']
 - [iio_pluto_source_0, '0', low_pass_filter_0, '0']

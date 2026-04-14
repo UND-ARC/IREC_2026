@@ -1,16 +1,12 @@
 import socket
 import time
 import cv2
-import numpy as np
 import io
 
-from cv2.datasets import none
 from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
-from picamera2.outputs import FfmpegOutput
 from picamera2.outputs import PyavOutput
-import subprocess
 import Constants
 
 
@@ -113,13 +109,6 @@ def main():
             tcp_sock.close()
         
 
-        if Constants.IS_FLIGHT_MODE:
-            try:
-                pass
-                #ffmpeg_proc.stdin.close()
-                #ffmpeg_proc.terminate()
-            except:
-                pass
 
 
 if __name__ == "__main__":
