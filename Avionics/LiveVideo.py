@@ -69,7 +69,7 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            output = FfmpegOutput("udp://127.0.0.1:5000?pkt_size=1316", format="mpegts")
+            output = FfmpegOutput("udp://127.0.0.1:5000?pkt_size=1316")
 
             encoder.output = output
             encoder.start()
