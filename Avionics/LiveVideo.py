@@ -73,7 +73,7 @@ def main():
         if Constants.IS_FLIGHT_MODE:
             tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-            tcp_sock.connect(("udp://127.0.0.1", 9000))
+            tcp_sock.connect(("127.0.0.1", 9000))
 
             picam2.start_recording(H264Encoder(), PyavOutput(f"pipe:{tcp_sock.fileno()}", format="mpegts"))
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
