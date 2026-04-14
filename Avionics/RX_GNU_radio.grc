@@ -163,7 +163,7 @@ blocks:
     rfdc: 'True'
     samplerate: SampleRate
     type: fc32
-    uri: 192.168.4.1
+    uri: ip:192.168.4.1
   states:
     bus_sink: false
     bus_source: false
