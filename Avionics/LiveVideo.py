@@ -7,6 +7,7 @@ from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
 from picamera2.outputs import FfmpegOutput
+import subprocess
 import Constants
 
 
@@ -69,9 +70,17 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            output = FfmpegOutput("udp://127.0.0.1:5000?pkt_size=1316")
+            ffmpeg_cmd = [
+                'ffmpeg',
+                '-y',
+                '-i', 'pipe:0',  # Read from stdin
+                '-c', 'copy',  # Don't re-encode, just wrap
+                '-f', 'mpegts',  # Wrap in MPEG-TS
+                "udp://127.0.0.1:5000?pkt_size=1316"
+            ]
+            ffmpeg_proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
 
-            encoder.output = output
+            encoder.output = ffmpeg_proc.stdin
             encoder.start()
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
@@ -109,7 +118,8 @@ def main():
 
         if Constants.IS_FLIGHT_MODE:
             try:
-                pluto_tx.stop()
+                ffmpeg_proc.stdin.close()
+                ffmpeg_proc.terminate()
             except:
                 pass
 
