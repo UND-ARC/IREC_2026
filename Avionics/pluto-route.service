@@ -1,0 +1,12 @@
+#/etc/systemd/system/pluto-route.service
+[Unit]
+Description=Add Pluto SDR static IP
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ip addr add 192.168.3.100/24 dev eth0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
