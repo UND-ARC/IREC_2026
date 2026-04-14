@@ -34,6 +34,8 @@ class TX_GNU_radio(gr.top_block):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 10_000_00
+        self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
+        4, 2, 2, 1, 1).base()
 
         ##################################################
         # Blocks
@@ -48,7 +50,7 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_attenuation(0, 30)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
         self.digital_constellation_modulator_0 = digital.generic_mod(
-            constellation=digital.constellation_qpsk().base(),
+            constellation=constellation_obj,
             differential=True,
             samples_per_symbol=4,
             pre_diff_code=True,
@@ -71,6 +73,12 @@ class TX_GNU_radio(gr.top_block):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.iio_pluto_sink_0.set_samplerate(self.samp_rate)
+
+    def get_constellation_obj(self):
+        return self.constellation_obj
+
+    def set_constellation_obj(self, constellation_obj):
+        self.constellation_obj = constellation_obj
 
 
 

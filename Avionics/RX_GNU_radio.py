@@ -25,6 +25,7 @@ from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import iio
 from gnuradio import network
+import configparser
 import sip
 import threading
 
@@ -66,24 +67,31 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.bit_slip = bit_slip = 0
+        self._variable_config_0_config = configparser.ConfigParser()
+        self._variable_config_0_config.read('default')
+        try: variable_config_0 = self._variable_config_0_config.getfloat('main', 'key')
+        except: variable_config_0 = 0
+        self.variable_config_0 = variable_config_0
+        self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
+        4, 2, 2, 1, 1).base()
         self.SampleRate = SampleRate = 1_000_000
         self.Loop_Band_width = Loop_Band_width = .01
         self.Freq_shift = Freq_shift = 0
+        self.Bit_Slip = Bit_Slip = 0
 
         ##################################################
         # Blocks
         ##################################################
 
-        self._bit_slip_range = qtgui.Range(0, 7, 1, 0, 200)
-        self._bit_slip_win = qtgui.RangeWidget(self._bit_slip_range, self.set_bit_slip, "bit_slip", "counter_slider", int, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._bit_slip_win)
         self._Loop_Band_width_range = qtgui.Range(0, .1, .001, .01, 200)
         self._Loop_Band_width_win = qtgui.RangeWidget(self._Loop_Band_width_range, self.set_Loop_Band_width, "Loop_Band_width", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Loop_Band_width_win)
         self._Freq_shift_range = qtgui.Range(-20000, 20000, 50, 0, 200)
         self._Freq_shift_win = qtgui.RangeWidget(self._Freq_shift_range, self.set_Freq_shift, "Freq_shift", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Freq_shift_win)
+        self._Bit_Slip_range = qtgui.Range(0, 7, 1, 0, 200)
+        self._Bit_Slip_win = qtgui.RangeWidget(self._Bit_Slip_range, self.set_Bit_Slip, "Bit_Slip", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._Bit_Slip_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
             1024, #size
             SampleRate, #samp_rate
@@ -199,8 +207,8 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(4, Loop_Band_width, firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32), 32, 0, 1.5, 1)
         self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(4, digital.DIFF_DIFFERENTIAL)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(Loop_Band_width, 4, False)
-        self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(digital.constellation_qpsk().base())
-        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_char*1, bit_slip)
+        self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation_obj)
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_char*1, Bit_Slip)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/jacob/Code/IREC_2026/Avionics/rocket_flight_raw.ts', False)
         self.blocks_file_sink_0.set_unbuffered(False)
@@ -230,11 +238,18 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
         event.accept()
 
-    def get_bit_slip(self):
-        return self.bit_slip
+    def get_variable_config_0(self):
+        return self.variable_config_0
 
-    def set_bit_slip(self, bit_slip):
-        self.bit_slip = bit_slip
+    def set_variable_config_0(self, variable_config_0):
+        self.variable_config_0 = variable_config_0
+
+    def get_constellation_obj(self):
+        return self.constellation_obj
+
+    def set_constellation_obj(self, constellation_obj):
+        self.constellation_obj = constellation_obj
+        self.digital_constellation_decoder_cb_0.set_constellation(self.constellation_obj)
 
     def get_SampleRate(self):
         return self.SampleRate
@@ -259,6 +274,12 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
     def set_Freq_shift(self, Freq_shift):
         self.Freq_shift = Freq_shift
         self.iio_pluto_source_0.set_frequency((915000000 + self.Freq_shift))
+
+    def get_Bit_Slip(self):
+        return self.Bit_Slip
+
+    def set_Bit_Slip(self, Bit_Slip):
+        self.Bit_Slip = Bit_Slip
 
 
 
