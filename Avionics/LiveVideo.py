@@ -80,7 +80,7 @@ def main():
             ]
             ffmpeg_proc = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
 
-            encoder.output = ffmpeg_proc.stdin
+            encoder.output(ffmpeg_proc.stdin)
             encoder.start()
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
