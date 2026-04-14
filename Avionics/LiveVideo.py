@@ -70,7 +70,7 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            ffmpeg_cmd = [
+            '''ffmpeg_cmd = [
                 'ffmpeg',
                 '-y',
                 '-i', 'pipe:0',  # Read from stdin
@@ -83,7 +83,9 @@ def main():
             main_stream = picam2.streams["main"]
 
             encoder.output = FileOutput(ffmpeg_proc.stdin)
-            encoder.start(main_stream)
+            encoder.start(main_stream)'''
+            stream_url = "rtp://127.0.0.1:9000"
+            picam2.start_recording(H264Encoder(), FileOutput(FfmpegOutput(f"-f rtp {stream_url}")))
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")
@@ -120,8 +122,9 @@ def main():
 
         if Constants.IS_FLIGHT_MODE:
             try:
-                ffmpeg_proc.stdin.close()
-                ffmpeg_proc.terminate()
+                pass
+                #ffmpeg_proc.stdin.close()
+                #ffmpeg_proc.terminate()
             except:
                 pass
 

@@ -128,7 +128,7 @@ blocks:
     minoutbuf: '0'
     notify_missed: 'False'
     payloadsize: '1316'
-    port: '5000'
+    port: '9000'
     src_zeros: 'False'
     type: byte
     vlen: '1'

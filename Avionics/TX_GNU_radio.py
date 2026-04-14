@@ -39,7 +39,7 @@ class TX_GNU_radio(gr.top_block):
         # Blocks
         ##################################################
 
-        self.network_udp_source_0 = network.udp_source(gr.sizeof_char, 1, 5000, 0, 1316, False, False, False)
+        self.network_udp_source_0 = network.udp_source(gr.sizeof_char, 1, 9000, 0, 1316, False, False, False)
         self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('192.168.3.1' if '192.168.3.1' else iio.get_pluto_uri(), [True, True], 32768, False)
         self.iio_pluto_sink_0.set_len_tag_key('')
         self.iio_pluto_sink_0.set_bandwidth(20000000)
