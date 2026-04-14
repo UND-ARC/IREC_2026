@@ -74,7 +74,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    constellation: '"QPSK"'
+    constellation: digital.constellation_qpsk().base()
     differential: 'False'
     excess_bw: '0.35'
     log: 'False'
