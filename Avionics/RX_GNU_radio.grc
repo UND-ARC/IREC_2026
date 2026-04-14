@@ -89,7 +89,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    constellation: '"QPSK"'
+    constellation: digital.constellation_qpsk().base()
     maxoutbuf: '0'
     minoutbuf: '0'
   states:

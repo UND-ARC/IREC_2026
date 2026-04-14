@@ -90,7 +90,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0.set_filter_params('Auto', '', 0, 0)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(4, 0.0628, firdes.root_raised_cosine(32, 32, 1.0/4, 0.35, 32*4), 32, 0, 1.5, 1)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(0.0628, 4, False)
-        self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb("QPSK")
+        self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(digital.constellation_qpsk().base())
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(2, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/tmp/rx_output.bin', False)
         self.blocks_file_sink_0.set_unbuffered(True)
