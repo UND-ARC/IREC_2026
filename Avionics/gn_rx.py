@@ -68,9 +68,9 @@ class RxFlowgraph(gr.top_block):
 
         # --- Blocks ---
         self.pluto = iio.fmcomms2_source_fc32(
-            uri=Constants.Pluto_Ground_IP,
-            ch_en=[True, False, False, False],
-            buffer_size=32768,
+            Constants.Pluto_Ground_IP,
+            [True, False, False, False],
+            32768,
         )
         self.pluto.set_frequency(Constants.RX_FREQ)
         self.pluto.set_samplerate(Constants.SAMP_RATE)
@@ -94,14 +94,20 @@ class RxFlowgraph(gr.top_block):
             log                = False
         )
 
-        # Unpack bits to bytes
-        self.unpack   = blocks.unpack_k_bits_bb(8)
+        # generic_demod outputs 1 bit per byte — pack into bytes
+        self.repack = blocks.repack_bits_bb(
+            1,  # input bits per byte (from demod)
+            8,  # output bits per byte
+            "",  # tag key
+            False,  # align
+            gr.GR_MSB_FIRST
+        )
 
         # Our custom sink
-        self.sink     = ByteSink(byte_queue)
+        self.sink = ByteSink(byte_queue)
 
         # --- Connect ---
-        self.connect(self.pluto, self.demod, self.unpack, self.sink)
+        self.connect(self.pluto, self.demod, self.repack, self.sink)
 
 
 def main():

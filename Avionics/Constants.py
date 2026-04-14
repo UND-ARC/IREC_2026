@@ -1,7 +1,7 @@
 
-Pluto_Ground_IP = "ip:192.168.4.1"
+Pluto_Ground_IP = "192.168.4.1"
 Pluto_Ground_Hostname = "ip:pluto-ground.local"
-Pluto_Pi_IP = "ip:192.168.3.1"
+Pluto_Pi_IP = "192.168.3.1"
 Pluto_Pi_Hostname = "ip:pluto-pi.local"
 
 Laptop_IP = "10.42.0.1"
