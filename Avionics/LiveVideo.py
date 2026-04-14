@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import io
 
-from black import output
 from cv2.datasets import none
 from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
