@@ -120,20 +120,6 @@ blocks:
     coordinate: [24, 488.0]
     rotation: 0
     state: enabled
-- name: header_format_default
-  id: variable_header_format_default
-  parameters:
-    access_code: '11011011001100001111011100000011'
-    bps: '1'
-    comment: ''
-    threshold: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [584, 536.0]
-    rotation: 0
-    state: disabled
 - name: nfilts
   id: variable
   parameters:
