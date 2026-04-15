@@ -133,7 +133,7 @@ blocks:
     bus_structure: null
     coordinate: [584, 536.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: nfilts
   id: variable
   parameters:
@@ -690,7 +690,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 256.0]
+    coordinate: [416, 280.0]
     rotation: 180
     state: enabled
 - name: digital_pfb_clock_sync_xxx_0
@@ -768,7 +768,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [384, 136.0]
+    coordinate: [392, 152.0]
     rotation: 0
     state: enabled
 - name: network_udp_sink_0_0
@@ -1256,7 +1256,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 72.0]
+    coordinate: [472, 72.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0
