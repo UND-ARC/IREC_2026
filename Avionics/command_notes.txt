@@ -26,3 +26,9 @@ iio_info --scan
 ipcs -m | awk '$2 ~ /[0-9]+/ {print $2}' | xargs -n1 ipcrm -m 2>/dev/null
 sudo sysctl -w kernel.shmmax=67108864
 
+sudo modprobe uio_pdrv_genirq
+
+nano /etc/security/limits.conf
+@realtime - rtprio 99
+@realtime - memlock unlimited
+
