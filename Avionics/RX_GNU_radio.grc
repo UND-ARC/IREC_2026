@@ -236,7 +236,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '2'
+    value: '4'
   states:
     bus_sink: false
     bus_source: false
@@ -708,7 +708,7 @@ blocks:
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: '1300000000'
+    frequency: '915000000'
     fstop: '0'
     gain1: '''manual'''
     len_tag_key: packet_len

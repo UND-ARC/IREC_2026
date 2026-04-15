@@ -150,7 +150,7 @@ blocks:
     log: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samples_per_symbol: '2'
+    samples_per_symbol: '4'
     truncate: 'False'
     verbose: 'False'
   states:
@@ -208,7 +208,7 @@ blocks:
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: '1300000000'
+    frequency: '915000000'
     fstop: '0'
     len_tag_key: ''
     samplerate: samp_rate

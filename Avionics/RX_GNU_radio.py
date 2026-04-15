@@ -66,7 +66,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.sps = sps = 2
+        self.sps = sps = 4
         self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
         self.nfilts = nfilts = 32
@@ -246,7 +246,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
                 6.76))
         self.iio_pluto_source_0_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 131072)
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
-        self.iio_pluto_source_0_0.set_frequency(1300000000)
+        self.iio_pluto_source_0_0.set_frequency(915000000)
         self.iio_pluto_source_0_0.set_samplerate(samp_rate)
         self.iio_pluto_source_0_0.set_gain_mode(0, 'manual')
         self.iio_pluto_source_0_0.set_gain(0, 15)
