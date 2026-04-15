@@ -73,7 +73,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.timing_loop_bw = timing_loop_bw = 6.28/100.0
         self.time_offset = time_offset = 1.00
         self.taps = taps = [1.0, 0.25-0.25j, 0.50 + 0.10j, -0.3 + 0.2j]
-        self.samp_rate = samp_rate = 1500000
+        self.samp_rate = samp_rate = 15000000
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
         self.phase_bw = phase_bw = 6.28/100.0
         self.noise_volt = noise_volt = 0.0001
@@ -478,7 +478,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.network_udp_sink_0_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 10001, 0, 1024, False)
         self.iio_pluto_source_0_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 32768)
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
-        self.iio_pluto_source_0_0.set_frequency(915000000)
+        self.iio_pluto_source_0_0.set_frequency(1300000000)
         self.iio_pluto_source_0_0.set_samplerate((samp_rate*2))
         self.iio_pluto_source_0_0.set_gain_mode(0, 'manual')
         self.iio_pluto_source_0_0.set_gain(0, 15)

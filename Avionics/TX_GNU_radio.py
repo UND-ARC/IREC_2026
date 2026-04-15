@@ -49,7 +49,7 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('192.168.3.1' if '192.168.3.1' else iio.get_pluto_uri(), [True, True], 32768, False)
         self.iio_pluto_sink_0.set_len_tag_key('')
         self.iio_pluto_sink_0.set_bandwidth(20000000)
-        self.iio_pluto_sink_0.set_frequency(915000000)
+        self.iio_pluto_sink_0.set_frequency(1300000000)
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
         self.iio_pluto_sink_0.set_attenuation(0, 30)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
