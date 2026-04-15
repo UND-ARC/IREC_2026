@@ -51,8 +51,8 @@ def main():
         "iperiod": Constants.IDR_VAL,
         "preset": "ultrafast",
         "tune": "zerolatency",
-        "repeat_headers": True,  # CRITICAL: Re-sends SPS/PPS headers with every I-frame
-        "profile": "baseline",   # Baseline is easier for ffplay to decode under noise
+        "repeat_headers": True,
+        "profile": "baseline",
         "x264opts": f"vbv-maxrate={Constants.BITRATE // 1000}:vbv-bufsize=100",
     }
 
@@ -61,14 +61,15 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            udp_url = f"udp://127.0.0.1:9000?pkt_size=1316&bitrate={Constants.MUXRATE}"
 
-            #sock.connect(("127.0.0.1", 9000))
+            # 2. Add options={"muxrate": ...} to PAD the stream with dummy data
+            videoOutput = PyavOutput(
+                udp_url,
+                format="mpegts",
+                options={"muxrate": str(Constants.MUXRATE)}
+            )
 
-            #videoOutput =  PyavOutput(f"pipe:{sock.fileno()}", format="mpegts")
-            udp_url = "udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1&buffer_size=65536"
-
-            videoOutput = PyavOutput(udp_url, format="mpegts")
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")

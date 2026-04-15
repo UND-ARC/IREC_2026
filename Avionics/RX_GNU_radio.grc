@@ -230,6 +230,27 @@ blocks:
     coordinate: [360, 8.0]
     rotation: 0
     state: enabled
+- name: squelch_threshold
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: squelch_threshold
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-100'
+    step: '1'
+    stop: '0'
+    value: '-70'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [624, 520.0]
+    rotation: 0
+    state: enabled
 - name: taps
   id: variable
   parameters:
@@ -310,12 +331,12 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    threshold: '-35'
+    threshold: squelch_threshold
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [576, 168.0]
+    coordinate: [536, 176.0]
     rotation: 0
     state: enabled
 - name: blocks_char_to_float_0
@@ -577,7 +598,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     tagname: frame
-    threshold: '6'
+    threshold: '1'
     type: byte
   states:
     bus_sink: false
@@ -771,7 +792,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [392, 152.0]
+    coordinate: [376, 136.0]
     rotation: 0
     state: enabled
 - name: network_udp_sink_0_0
@@ -905,98 +926,6 @@ blocks:
     coordinate: [1112, 184.0]
     rotation: 0
     state: enabled
-- name: qtgui_const_sink_x_1
-  id: qtgui_const_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    axislabels: 'True'
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    grid: 'False'
-    gui_hint: ''
-    label1: ''
-    label10: ''
-    label2: ''
-    label3: ''
-    label4: ''
-    label5: ''
-    label6: ''
-    label7: ''
-    label8: ''
-    label9: ''
-    legend: 'True'
-    marker1: '0'
-    marker10: '0'
-    marker2: '0'
-    marker3: '0'
-    marker4: '0'
-    marker5: '0'
-    marker6: '0'
-    marker7: '0'
-    marker8: '0'
-    marker9: '0'
-    name: '"base1"'
-    nconnections: '1'
-    size: '1024'
-    style1: '0'
-    style10: '0'
-    style2: '0'
-    style3: '0'
-    style4: '0'
-    style5: '0'
-    style6: '0'
-    style7: '0'
-    style8: '0'
-    style9: '0'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_slope: qtgui.TRIG_SLOPE_POS
-    tr_tag: '""'
-    type: complex
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    xmax: '2'
-    xmin: '-2'
-    ymax: '2'
-    ymin: '-2'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [496, 80.0]
-    rotation: 0
-    state: disabled
 - name: qtgui_const_sink_x_2
   id: qtgui_const_sink_x
   parameters:
@@ -1197,7 +1126,7 @@ blocks:
     alpha8: '1.0'
     alpha9: '1.0'
     autoscale: 'False'
-    average: '1.0'
+    average: '0.2'
     axislabels: 'True'
     bw: samp_rate
     color1: '"blue"'
@@ -1232,7 +1161,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
-    nconnections: '1'
+    nconnections: '2'
     norm_window: 'False'
     showports: 'False'
     tr_chan: '0'
@@ -1241,7 +1170,7 @@ blocks:
     tr_tag: '""'
     type: complex
     units: dB
-    update_time: '0.10'
+    update_time: '0.05'
     width1: '1'
     width10: '1'
     width2: '1'
@@ -1259,7 +1188,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [472, 72.0]
+    coordinate: [528, 72.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0
@@ -1590,6 +1519,7 @@ blocks:
 
 connections:
 - [analog_simple_squelch_cc_0, '0', digital_pfb_clock_sync_xxx_0, '0']
+- [analog_simple_squelch_cc_0, '0', qtgui_freq_sink_x_0, '1']
 - [blocks_char_to_float_0, '0', qtgui_time_sink_x_0, '0']
 - [blocks_char_to_float_0_0, '0', qtgui_time_sink_x_0_0, '0']
 - [blocks_char_to_float_0_0_0, '0', blocks_delay_0, '0']
@@ -1618,7 +1548,6 @@ connections:
 - [digital_pfb_clock_sync_xxx_0, '0', digital_linear_equalizer_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', qtgui_const_sink_x_2, '0']
 - [iio_pluto_source_0_0, '0', low_pass_filter_0, '0']
-- [iio_pluto_source_0_0, '0', qtgui_const_sink_x_1, '0']
 - [iio_pluto_source_0_0, '0', qtgui_freq_sink_x_0, '0']
 - [low_pass_filter_0, '0', analog_simple_squelch_cc_0, '0']
 

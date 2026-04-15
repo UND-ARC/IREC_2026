@@ -11,9 +11,10 @@ IS_FLIGHT_MODE = True   # Set TRUE for RF, Set false for Ethernet to laptop
 USE_OVERLAY    = False    # Set TRUE to draw telemetry overlay
 
 if IS_FLIGHT_MODE:
-    #Bitrate_Limit = Sample Rate * Bits Per Symbol / Samples Per Symbol
-    Bitrate_limit = 1_500_000 * 2 / 4
-    BITRATE = 700_000
+    # BITRATE is the actual video payload (leaves room for shaking)
+    BITRATE = 500_000
+    # MUXRATE is the total pipe size. Must be just under your 750k radio limit
+    MUXRATE = 720_000
     IDR_VAL = 10
 else:
     BITRATE = 3_000_000
