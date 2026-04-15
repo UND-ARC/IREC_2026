@@ -1,136 +1,125 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# IREC 2026 Avionics — TX Flowgraph
+# Pi → PlutoSDR (192.168.3.1) @ 915 MHz
+# Receives MPEG-TS from LiveVideo.py via UDP port 9000
 
-#
-# SPDX-License-Identifier: GPL-3.0
-#
-# GNU Radio Python Flow Graph
-# Title: Not titled yet
-# GNU Radio version: 3.10.12.0
+import os
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
-from gnuradio import blocks
-from gnuradio import digital
-from gnuradio import gr
+from gnuradio import blocks, digital, gr, network
 from gnuradio.filter import firdes
 from gnuradio.fft import window
-import sys
-import signal
-from argparse import ArgumentParser
-from gnuradio.eng_arg import eng_float, intx
-from gnuradio import eng_notation
 from gnuradio import iio
-from gnuradio import network
-import threading
-
-
-
+import sys, signal, threading
 
 class TX_GNU_radio(gr.top_block):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "IREC TX", catch_exceptions=True)
         self.flowgraph_started = threading.Event()
 
         ##################################################
-        # Variables
+        # Variables — must match RX exactly
         ##################################################
-        self.samp_rate = samp_rate = 1_500_000
-        self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
-        4, 2, 2, 1, 1).base()
-        self.header_format_default = header_format_default = digital.header_format_default('11011011001100001111011100000011',3, 1)
-        self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
-        4, 2, 2, 1, 1).base()
+        self.samp_rate  = 1_500_000
+        self.sps        = 2          # samples per symbol
+        self.excess_bw  = 0.35
+        self.pkt_len    = 1316       # match UDP packet size from LiveVideo.py
+
+        # QPSK constellation — must match RX
+        self.qpsk = digital.constellation_rect(
+            [0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j],
+            [0, 1, 2, 3], 4, 2, 2, 1, 1).base()
+
+        # Access code — must match RX correlate block exactly
+        self.access_code = '11011011001100001111011100000011'
 
         ##################################################
         # Blocks
         ##################################################
 
-        self.network_udp_source_0 = network.udp_source(gr.sizeof_char, 1, 9000, 0, 1316, True, False, False)
-        self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('192.168.3.1' if '192.168.3.1' else iio.get_pluto_uri(), [True, True], 131072, False)
-        self.iio_pluto_sink_0.set_len_tag_key('')
-        self.iio_pluto_sink_0.set_bandwidth(20000000)
-        self.iio_pluto_sink_0.set_frequency(915000000)
-        self.iio_pluto_sink_0.set_samplerate(samp_rate)
-        self.iio_pluto_sink_0.set_attenuation(0, 30)
-        self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
-        self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(header_format_default, "packet_len")
-        self.digital_crc32_bb_0 = digital.crc32_bb(False, "packet_len", True)
-        self.digital_constellation_modulator_0_0 = digital.generic_mod(
-            constellation=qpsk,
+        # 1. Receive MPEG-TS UDP from LiveVideo.py
+        self.udp_source = network.udp_source(
+            gr.sizeof_char, 1,
+            9000,    # port
+            0,       # header type: none
+            self.pkt_len,
+            True,    # notify missed frames
+            False,   # IPv6
+            False)   # src zeros if no data — keep False
+
+        # 2. Tag stream into packets matching pkt_len
+        self.stream_tagger = blocks.stream_to_tagged_stream(
+            gr.sizeof_char, 1, self.pkt_len, "packet_len")
+
+        # 3. CRC32 append
+        self.crc_append = digital.crc32_bb(False, "packet_len", True)
+
+        # 4. Protocol formatter — inserts access code header
+        self.header_format = digital.header_format_default(
+            self.access_code, 0, 1)
+        self.formatter = digital.protocol_formatter_bb(
+            self.header_format, "packet_len")
+
+        # 5. Mux header + payload
+        self.mux = blocks.tagged_stream_mux(
+            gr.sizeof_char * 1, "packet_len", 0)
+
+        # 6. QPSK modulator with differential encoding
+        self.modulator = digital.generic_mod(
+            constellation=self.qpsk,
             differential=True,
-            samples_per_symbol=2,
+            samples_per_symbol=self.sps,
             pre_diff_code=True,
-            excess_bw=0.35,
+            excess_bw=self.excess_bw,
             verbose=False,
             log=False,
             truncate=False)
-        self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_char*1, "packet_len", 0)
-        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 1316, "packet_len")
 
+        # 7. PlutoSDR sink
+        self.pluto_sink = iio.fmcomms2_sink_fc32(
+            '192.168.3.1',
+            [True, True], 32768, False)
+        self.pluto_sink.set_len_tag_key('')
+        self.pluto_sink.set_bandwidth(20_000_000)
+        self.pluto_sink.set_frequency(915_000_000)
+        self.pluto_sink.set_samplerate(self.samp_rate)
+        self.pluto_sink.set_attenuation(0, 30)
+        self.pluto_sink.set_filter_params('Auto', '', 0, 0)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.digital_crc32_bb_0, 0))
-        self.connect((self.blocks_tagged_stream_mux_0, 0), (self.digital_constellation_modulator_0_0, 0))
-        self.connect((self.digital_constellation_modulator_0_0, 0), (self.iio_pluto_sink_0, 0))
-        self.connect((self.digital_crc32_bb_0, 0), (self.blocks_tagged_stream_mux_0, 1))
-        self.connect((self.digital_crc32_bb_0, 0), (self.digital_protocol_formatter_bb_0, 0))
-        self.connect((self.digital_protocol_formatter_bb_0, 0), (self.blocks_tagged_stream_mux_0, 0))
-        self.connect((self.network_udp_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
+        self.connect((self.udp_source,    0), (self.stream_tagger, 0))
+        self.connect((self.stream_tagger, 0), (self.crc_append,    0))
+        self.connect((self.crc_append,    0), (self.formatter,     0))
+        self.connect((self.crc_append,    0), (self.mux,           1))
+        self.connect((self.formatter,     0), (self.mux,           0))
+        self.connect((self.mux,           0), (self.modulator,     0))
+        self.connect((self.modulator,     0), (self.pluto_sink,    0))
 
 
-    def get_samp_rate(self):
-        return self.samp_rate
-
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
-        self.iio_pluto_sink_0.set_samplerate(self.samp_rate)
-
-    def get_qpsk(self):
-        return self.qpsk
-
-    def set_qpsk(self, qpsk):
-        self.qpsk = qpsk
-
-    def get_header_format_default(self):
-        return self.header_format_default
-
-    def set_header_format_default(self, header_format_default):
-        self.header_format_default = header_format_default
-        self.digital_protocol_formatter_bb_0.set_header_format(self.header_format_default)
-
-    def get_constellation_obj(self):
-        return self.constellation_obj
-
-    def set_constellation_obj(self, constellation_obj):
-        self.constellation_obj = constellation_obj
-
-
-
-
-def main(top_block_cls=TX_GNU_radio, options=None):
-    tb = top_block_cls()
+def main():
+    tb = TX_GNU_radio()
 
     def sig_handler(sig=None, frame=None):
         tb.stop()
         tb.wait()
-
         sys.exit(0)
 
-    signal.signal(signal.SIGINT, sig_handler)
+    signal.signal(signal.SIGINT,  sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
     tb.start()
     tb.flowgraph_started.set()
-
+    print("[TX] Flowgraph running. Press Enter to quit.")
     try:
-        input('Press Enter to quit: ')
+        input()
     except EOFError:
         pass
     tb.stop()
     tb.wait()
-
 
 if __name__ == '__main__':
     main()
