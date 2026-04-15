@@ -33,22 +33,10 @@ def apply_overlay(request):
         )
 
 
-
-
-class EthernetOutput(io.RawIOBase):
-    """Streams H264 NAL units over TCP to ground station"""
-    def __init__(self, tcp_sock):
-        self._sock = tcp_sock
-
-    def write(self, b):
-        self._sock.sendall(b)
-        return len(b)
-
-
 def main():
     picam2 = Picamera2()
     config = picam2.create_video_configuration(
-        main={"size": (1280, 720), "format": "YUV420"}
+        main={"size": (640, 480), "format": "YUV420"}
     )
     picam2.configure(config)
 
@@ -62,28 +50,31 @@ def main():
         "bitrate": Constants.BITRATE,
         "iperiod": Constants.IDR_VAL,
         "preset": "ultrafast",
-        "tune": "zerolatency"
+        "tune": "zerolatency",
+        "repeat_headers": True,  # CRITICAL: Re-sends SPS/PPS headers with every I-frame
+        "profile": "baseline",   # Baseline is easier for ffplay to decode under noise
     }
 
-    tcp_sock   = None
+    sock   = None
     videoOutput = None
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-            tcp_sock.connect(("127.0.0.1", 9000))
+            #sock.connect(("127.0.0.1", 9000))
 
-            videoOutput =  PyavOutput(f"pipe:{tcp_sock.fileno()}", format="mpegts")
+            #videoOutput =  PyavOutput(f"pipe:{sock.fileno()}", format="mpegts")
+            videoOutput = PyavOutput("udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1", format="mpegts")
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")
-            tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            tcp_sock.settimeout(10.0)
-            tcp_sock.connect((Constants.Laptop_IP, Constants.Laptop_Port))
-            tcp_sock.settimeout(None)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(10.0)
+            sock.connect((Constants.Laptop_IP, Constants.Laptop_Port))
+            sock.settimeout(None)
             print(f"[*] Connected!")
-            videoOutput = FileOutput(tcp_sock.makefile("wb"))
+            videoOutput = FileOutput(sock.makefile("wb"))
 
         # Start recording AFTER output is ready
         picam2.start_recording(encoder, videoOutput)
@@ -105,8 +96,8 @@ def main():
         except:
             pass
         picam2.stop()
-        if tcp_sock:
-            tcp_sock.close()
+        if sock:
+            sock.close()
         
 
 

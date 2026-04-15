@@ -87,7 +87,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self._Loop_Band_width_range = qtgui.Range(0, .1, .001, .01, 200)
         self._Loop_Band_width_win = qtgui.RangeWidget(self._Loop_Band_width_range, self.set_Loop_Band_width, "Loop_Band_width", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Loop_Band_width_win)
-        self._Freq_shift_range = qtgui.Range(-20000, 20000, 50, 0, 200)
+        self._Freq_shift_range = qtgui.Range(-20000, 20000, 10, 0, 200)
         self._Freq_shift_win = qtgui.RangeWidget(self._Freq_shift_range, self.set_Freq_shift, "Freq_shift", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Freq_shift_win)
         self._Bit_Slip_range = qtgui.Range(0, 7, 1, 0, 200)

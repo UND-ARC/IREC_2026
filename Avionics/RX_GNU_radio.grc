@@ -64,7 +64,7 @@ blocks:
     orient: QtCore.Qt.Horizontal
     rangeType: float
     start: '-20000'
-    step: '50'
+    step: '10'
     stop: '20000'
     value: '0'
     widget: counter_slider
@@ -125,7 +125,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [664, 340.0]
+    coordinate: [592, 364.0]
     rotation: 0
     state: enabled
 - name: rrc_taps
@@ -322,33 +322,6 @@ blocks:
     coordinate: [336, 164.0]
     rotation: 0
     state: enabled
-- name: digital_symbol_sync_xx_0
-  id: digital_symbol_sync_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    constellation: digital.constellation_bpsk().base()
-    damping: '1.0'
-    loop_bw: '.01'
-    max_dev: '1.5'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    nfilters: '128'
-    osps: '1'
-    pfb_mf_taps: '[]'
-    resamp_type: digital.IR_MMSE_8TAP
-    sps: '4'
-    ted_gain: '1.0'
-    ted_type: digital.TED_GARDNER
-    type: cc
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [312, 428.0]
-    rotation: 0
-    state: disabled
 - name: iio_pluto_source_0
   id: iio_pluto_source
   parameters:
@@ -639,11 +612,8 @@ connections:
 - [digital_diff_decoder_bb_0, '0', digital_correlate_access_code_tag_xx_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', digital_costas_loop_cc_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', qtgui_time_sink_x_0, '0']
-- [digital_symbol_sync_xx_0, '0', digital_costas_loop_cc_0, '0']
-- [digital_symbol_sync_xx_0, '0', qtgui_time_sink_x_0, '0']
 - [iio_pluto_source_0, '0', low_pass_filter_0, '0']
 - [low_pass_filter_0, '0', digital_pfb_clock_sync_xxx_0, '0']
-- [low_pass_filter_0, '0', digital_symbol_sync_xx_0, '0']
 
 metadata:
   file_format: 1

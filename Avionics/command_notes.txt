@@ -8,6 +8,8 @@ pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps
 
 python LiveVideo.py
 
+python TX_GNU_radio.py
+
 
 #on laptop
 #for bench mode
