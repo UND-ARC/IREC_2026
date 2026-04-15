@@ -100,7 +100,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '10000_000'
+    value: '1_000_000'
   states:
     bus_sink: false
     bus_source: false
@@ -190,7 +190,7 @@ blocks:
     bus_structure: null
     coordinate: [752.0, 272]
     rotation: 270
-    state: bypassed
+    state: enabled
 - name: blocks_repack_bits_bb_0
   id: blocks_repack_bits_bb
   parameters:
@@ -254,7 +254,7 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    tagname: ''
+    tagname: 47 40
     threshold: '0'
     type: byte
   states:
@@ -319,9 +319,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [400, 436.0]
+    coordinate: [336, 164.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: digital_symbol_sync_xx_0
   id: digital_symbol_sync_xx
   parameters:
@@ -346,9 +346,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [272, 172.0]
+    coordinate: [312, 428.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: iio_pluto_source_0
   id: iio_pluto_source
   parameters:
@@ -637,9 +637,12 @@ connections:
 - [digital_costas_loop_cc_0, '0', digital_constellation_decoder_cb_0, '0']
 - [digital_costas_loop_cc_0, '0', qtgui_const_sink_x_0, '0']
 - [digital_diff_decoder_bb_0, '0', digital_correlate_access_code_tag_xx_0, '0']
+- [digital_pfb_clock_sync_xxx_0, '0', digital_costas_loop_cc_0, '0']
+- [digital_pfb_clock_sync_xxx_0, '0', qtgui_time_sink_x_0, '0']
 - [digital_symbol_sync_xx_0, '0', digital_costas_loop_cc_0, '0']
 - [digital_symbol_sync_xx_0, '0', qtgui_time_sink_x_0, '0']
 - [iio_pluto_source_0, '0', low_pass_filter_0, '0']
+- [low_pass_filter_0, '0', digital_pfb_clock_sync_xxx_0, '0']
 - [low_pass_filter_0, '0', digital_symbol_sync_xx_0, '0']
 
 metadata:

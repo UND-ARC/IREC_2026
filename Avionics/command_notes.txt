@@ -22,3 +22,7 @@ ffplay -i udp://0.0.0.0:10001 -probesize 10M -analyzeduration 10M -f mpegts
 #to find the ip
 iio_info --scan
 
+#fix shmat errors on pi
+ipcs -m | awk '$2 ~ /[0-9]+/ {print $2}' | xargs -n1 ipcrm -m 2>/dev/null
+sudo sysctl -w kernel.shmmax=67108864
+

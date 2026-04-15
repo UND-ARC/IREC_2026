@@ -75,7 +75,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32)
         self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
-        self.SampleRate = SampleRate = 10000_000
+        self.SampleRate = SampleRate = 1_000_000
         self.Loop_Band_width = Loop_Band_width = .01
         self.Freq_shift = Freq_shift = 0
         self.Bit_Slip = Bit_Slip = 0
@@ -205,24 +205,14 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0.set_rfdc(True)
         self.iio_pluto_source_0.set_bbdc(True)
         self.iio_pluto_source_0.set_filter_params('Auto', '', 0, 0)
-        self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
-            digital.TED_GARDNER,
-            4,
-            .01,
-            1.0,
-            1.0,
-            1.5,
-            1,
-            digital.constellation_bpsk().base(),
-            digital.IR_MMSE_8TAP,
-            128,
-            [])
+        self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(4, Loop_Band_width, rrc_taps, 32, 0, 1.5, 1)
         self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(4, digital.DIFF_DIFFERENTIAL)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(Loop_Band_width, 4, False)
-        self.digital_correlate_access_code_tag_xx_0 = digital.correlate_access_code_tag_bb('01000111', 0, '')
+        self.digital_correlate_access_code_tag_xx_0 = digital.correlate_access_code_tag_bb('01000111', 0, '47 40')
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation_obj)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_char*1, Bit_Slip)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
+        self.blocks_not_xx_0 = blocks.not_bb()
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/jacob/Code/IREC_2026/Avionics/rocket_flight_raw.ts', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
@@ -230,18 +220,19 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.blocks_not_xx_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_not_xx_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
         self.connect((self.digital_correlate_access_code_tag_xx_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.digital_diff_decoder_bb_0, 0), (self.digital_correlate_access_code_tag_xx_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_costas_loop_cc_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
+        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.low_pass_filter_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.digital_symbol_sync_xx_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
 
 
     def closeEvent(self, event):
@@ -263,6 +254,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
     def set_rrc_taps(self, rrc_taps):
         self.rrc_taps = rrc_taps
+        self.digital_pfb_clock_sync_xxx_0.update_taps(self.rrc_taps)
 
     def get_constellation_obj(self):
         return self.constellation_obj
@@ -286,6 +278,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
     def set_Loop_Band_width(self, Loop_Band_width):
         self.Loop_Band_width = Loop_Band_width
         self.digital_costas_loop_cc_0.set_loop_bandwidth(self.Loop_Band_width)
+        self.digital_pfb_clock_sync_xxx_0.set_loop_bandwidth(self.Loop_Band_width)
 
     def get_Freq_shift(self):
         return self.Freq_shift
