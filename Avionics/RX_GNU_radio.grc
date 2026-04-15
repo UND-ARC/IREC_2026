@@ -754,7 +754,7 @@ blocks:
     alias: ''
     beta: '6.76'
     comment: ''
-    cutoff_freq: '800_000'
+    cutoff_freq: '750_000'
     decim: '1'
     gain: '1'
     interp: '1'

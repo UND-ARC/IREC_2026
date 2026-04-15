@@ -282,7 +282,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             firdes.low_pass(
                 1,
                 samp_rate,
-                800_000,
+                750_000,
                 100000,
                 window.WIN_HAMMING,
                 6.76))
@@ -410,7 +410,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.iio_pluto_source_0_0.set_samplerate(self.samp_rate)
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 800_000, 100000, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 750_000, 100000, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0.set_frequency_range(915000, self.samp_rate)
 
     def get_rrc_taps(self):
