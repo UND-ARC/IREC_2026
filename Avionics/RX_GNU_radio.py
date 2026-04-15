@@ -78,7 +78,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
         self.phase_bw = phase_bw = 6.28/25.0
         self.noise_volt = noise_volt = 0.0001
-        self.header_format_default = header_format_default = digital.header_format_default('11011011001100001111011100000011',0, 1)
         self.freq_offset = freq_offset = 0
         self.excess_bw = excess_bw = 0.35
         self.eq_gain = eq_gain = 0.001
@@ -283,7 +282,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             firdes.low_pass(
                 1,
                 samp_rate,
-                500000,
+                800_000,
                 100000,
                 window.WIN_HAMMING,
                 6.76))
@@ -411,7 +410,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.iio_pluto_source_0_0.set_samplerate(self.samp_rate)
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 500000, 100000, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 800_000, 100000, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0.set_frequency_range(915000, self.samp_rate)
 
     def get_rrc_taps(self):
@@ -433,12 +432,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
     def set_noise_volt(self, noise_volt):
         self.noise_volt = noise_volt
-
-    def get_header_format_default(self):
-        return self.header_format_default
-
-    def set_header_format_default(self, header_format_default):
-        self.header_format_default = header_format_default
 
     def get_freq_offset(self):
         return self.freq_offset

@@ -213,7 +213,7 @@ blocks:
     len_tag_key: ''
     samplerate: samp_rate
     type: fc32
-    uri: 192.168.3.1
+    uri: ip:192.168.3.1
   states:
     bus_sink: false
     bus_source: false
