@@ -8,6 +8,7 @@
 # Title: Not titled yet
 # GNU Radio version: 3.10.12.0
 
+from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import gr
 from gnuradio.filter import firdes
@@ -58,13 +59,15 @@ class TX_GNU_radio(gr.top_block):
             verbose=False,
             log=False,
             truncate=False)
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(8, 1, "", False, gr.GR_MSB_FIRST)
 
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_constellation_modulator_0, 0))
         self.connect((self.digital_constellation_modulator_0, 0), (self.iio_pluto_sink_0, 0))
-        self.connect((self.network_udp_source_0, 0), (self.digital_constellation_modulator_0, 0))
+        self.connect((self.network_udp_source_0, 0), (self.blocks_repack_bits_bb_0, 0))
 
 
     def get_samp_rate(self):

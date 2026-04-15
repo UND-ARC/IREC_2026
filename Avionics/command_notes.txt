@@ -19,7 +19,7 @@ ffplay -i tcp://0.0.0.0:10001?listen -fflags nobuffer+genpts -flags low_delay -f
 sudo ip addr add 192.168.4.100/24 dev enp199s0f4u1
 python pluto_rx.py
 
-ffplay -i udp://0.0.0.0:10001 -probesize 10M -analyzeduration 10M -f mpegts
+ffplay -fflags nobuffer -flags low_delay -i udp://127.0.0.1:10001
 
 #to find the ip
 iio_info --scan

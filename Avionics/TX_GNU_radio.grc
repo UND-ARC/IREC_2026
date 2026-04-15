@@ -65,6 +65,26 @@ blocks:
     coordinate: [200, 12]
     rotation: 0
     state: enabled
+- name: blocks_repack_bits_bb_0
+  id: blocks_repack_bits_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    align_output: 'False'
+    comment: ''
+    endianness: gr.GR_MSB_FIRST
+    k: '8'
+    l: '1'
+    len_tag_key: '""'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 352.0]
+    rotation: 0
+    state: enabled
 - name: digital_constellation_modulator_0
   id: digital_constellation_modulator
   parameters:
@@ -84,7 +104,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [376, 336.0]
+    coordinate: [576, 336.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_sink_0
@@ -110,7 +130,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [608, 252.0]
+    coordinate: [808, 300.0]
     rotation: 0
     state: enabled
 - name: network_udp_source_0
@@ -138,8 +158,9 @@ blocks:
     state: enabled
 
 connections:
+- [blocks_repack_bits_bb_0, '0', digital_constellation_modulator_0, '0']
 - [digital_constellation_modulator_0, '0', iio_pluto_sink_0, '0']
-- [network_udp_source_0, '0', digital_constellation_modulator_0, '0']
+- [network_udp_source_0, '0', blocks_repack_bits_bb_0, '0']
 
 metadata:
   file_format: 1
