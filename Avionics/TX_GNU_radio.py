@@ -33,7 +33,7 @@ class TX_GNU_radio(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 10_000_00
+        self.samp_rate = samp_rate = 1_000_00
         self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
 
@@ -41,9 +41,9 @@ class TX_GNU_radio(gr.top_block):
         # Blocks
         ##################################################
 
-        self.network_udp_source_0 = network.udp_source(gr.sizeof_char, 1, 9000, 0, 1316, False, False, False)
+        self.network_udp_source_0 = network.udp_source(gr.sizeof_char, 1, 9000, 0, 1316, True, False, False)
         self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('192.168.3.1' if '192.168.3.1' else iio.get_pluto_uri(), [True, True], 32768, False)
-        self.iio_pluto_sink_0.set_len_tag_key('')
+        self.iio_pluto_sink_0.set_len_tag_key('1316')
         self.iio_pluto_sink_0.set_bandwidth(20000000)
         self.iio_pluto_sink_0.set_frequency(915000000)
         self.iio_pluto_sink_0.set_samplerate(samp_rate)

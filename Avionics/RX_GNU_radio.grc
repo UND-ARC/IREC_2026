@@ -93,7 +93,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [392, 368.0]
+    coordinate: [408, 464.0]
     rotation: 0
     state: enabled
 - name: SampleRate
@@ -125,7 +125,19 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [544, 364.0]
+    coordinate: [664, 340.0]
+    rotation: 0
+    state: enabled
+- name: rrc_taps
+  id: variable
+  parameters:
+    comment: ''
+    value: firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 512.0]
     rotation: 0
     state: enabled
 - name: variable_config_0
@@ -178,7 +190,7 @@ blocks:
     bus_structure: null
     coordinate: [752.0, 272]
     rotation: 270
-    state: bypassed
+    state: enabled
 - name: blocks_repack_bits_bb_0
   id: blocks_repack_bits_bb
   parameters:
@@ -251,7 +263,7 @@ blocks:
     bus_structure: null
     coordinate: [960, 176.0]
     rotation: 180
-    state: bypassed
+    state: enabled
 - name: digital_costas_loop_cc_0
   id: digital_costas_loop_cc
   parameters:
@@ -301,13 +313,40 @@ blocks:
     minoutbuf: '0'
     osps: '1'
     sps: '4'
-    taps: firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32)
+    taps: rrc_taps
     type: ccf
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [320, 164.0]
+    coordinate: [192, 204.0]
+    rotation: 0
+    state: disabled
+- name: digital_symbol_sync_xx_0
+  id: digital_symbol_sync_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: digital.constellation_bpsk().base()
+    damping: '1.0'
+    loop_bw: '.01'
+    max_dev: '1.5'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nfilters: '128'
+    osps: '1'
+    pfb_mf_taps: '[]'
+    resamp_type: digital.IR_MMSE_8TAP
+    sps: '4'
+    ted_gain: '1.0'
+    ted_type: digital.TED_GARDNER
+    type: cc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 172.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0
@@ -317,7 +356,7 @@ blocks:
     alias: ''
     bandwidth: '20000000'
     bbdc: 'True'
-    buffer_size: '32768'
+    buffer_size: '65536'
     comment: ''
     filter: ''
     filter_source: '''Auto'''
@@ -325,8 +364,8 @@ blocks:
     frequency: 915000000 + Freq_shift
     fstop: '0'
     gain1: '''manual'''
-    len_tag_key: packet_len
-    manual_gain1: '10'
+    len_tag_key: '1316'
+    manual_gain1: '15'
     maxoutbuf: '0'
     minoutbuf: '0'
     quadrature: 'True'
@@ -386,7 +425,7 @@ blocks:
     alias: ''
     comment: ''
     header: '0'
-    payloadsize: '1472'
+    payloadsize: '1316'
     port: '10001'
     send_eof: 'False'
     type: byte
@@ -584,7 +623,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [568, 208.0]
+    coordinate: [584, 184.0]
     rotation: 0
     state: enabled
 
@@ -598,10 +637,10 @@ connections:
 - [digital_costas_loop_cc_0, '0', digital_constellation_decoder_cb_0, '0']
 - [digital_costas_loop_cc_0, '0', qtgui_const_sink_x_0, '0']
 - [digital_diff_decoder_bb_0, '0', digital_correlate_access_code_tag_xx_0, '0']
-- [digital_pfb_clock_sync_xxx_0, '0', digital_costas_loop_cc_0, '0']
-- [digital_pfb_clock_sync_xxx_0, '0', qtgui_time_sink_x_0, '0']
+- [digital_symbol_sync_xx_0, '0', digital_costas_loop_cc_0, '0']
+- [digital_symbol_sync_xx_0, '0', qtgui_time_sink_x_0, '0']
 - [iio_pluto_source_0, '0', low_pass_filter_0, '0']
-- [low_pass_filter_0, '0', digital_pfb_clock_sync_xxx_0, '0']
+- [low_pass_filter_0, '0', digital_symbol_sync_xx_0, '0']
 
 metadata:
   file_format: 1

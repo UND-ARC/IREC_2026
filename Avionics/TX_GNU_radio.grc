@@ -57,7 +57,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '10_000_00'
+    value: '1_000_00'
   states:
     bus_sink: false
     bus_source: false
@@ -125,7 +125,7 @@ blocks:
     fpass: '0'
     frequency: '915000000'
     fstop: '0'
-    len_tag_key: ''
+    len_tag_key: '1316'
     samplerate: samp_rate
     type: fc32
     uri: 192.168.3.1
@@ -146,7 +146,7 @@ blocks:
     ipv6: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
-    notify_missed: 'False'
+    notify_missed: 'True'
     payloadsize: '1316'
     port: '9000'
     src_zeros: 'False'
