@@ -75,7 +75,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(32, 32, 1.0, 0.35, 11*32)
         self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
-        self.SampleRate = SampleRate = 1_000_000
+        self.SampleRate = SampleRate = 10000_000
         self.Loop_Band_width = Loop_Band_width = .01
         self.Freq_shift = Freq_shift = 0
         self.Bit_Slip = Bit_Slip = 0
