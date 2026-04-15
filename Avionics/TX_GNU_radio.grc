@@ -202,7 +202,7 @@ blocks:
     alias: ''
     attenuation1: '30'
     bandwidth: '20000000'
-    buffer_size: '32768'
+    buffer_size: '131072'
     comment: ''
     cyclic: 'False'
     filter: ''

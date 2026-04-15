@@ -703,7 +703,7 @@ blocks:
     alias: ''
     bandwidth: '20000000'
     bbdc: 'True'
-    buffer_size: '32768'
+    buffer_size: '131072'
     comment: ''
     filter: ''
     filter_source: '''Auto'''

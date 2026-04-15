@@ -244,7 +244,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
                 100000,
                 window.WIN_HAMMING,
                 6.76))
-        self.iio_pluto_source_0_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 32768)
+        self.iio_pluto_source_0_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 131072)
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
         self.iio_pluto_source_0_0.set_frequency(1300000000)
         self.iio_pluto_source_0_0.set_samplerate(samp_rate)
