@@ -53,7 +53,7 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
         self.iio_pluto_sink_0.set_attenuation(0, 30)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
-        self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(, "packet_len")
+        self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(header_format_default, "packet_len")
         self.digital_crc32_bb_0 = digital.crc32_bb(False, "packet_len", True)
         self.digital_constellation_modulator_0_0 = digital.generic_mod(
             constellation=qpsk,
@@ -98,6 +98,7 @@ class TX_GNU_radio(gr.top_block):
 
     def set_header_format_default(self, header_format_default):
         self.header_format_default = header_format_default
+        self.digital_protocol_formatter_bb_0.set_header_format(self.header_format_default)
 
     def get_constellation_obj(self):
         return self.constellation_obj

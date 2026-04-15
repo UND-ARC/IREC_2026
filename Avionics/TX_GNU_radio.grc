@@ -184,7 +184,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    format: ''
+    format: header_format_default
     len_tag_key: '"packet_len"'
     maxoutbuf: '0'
     minoutbuf: '0'
