@@ -8,7 +8,6 @@
 # Title: Not titled yet
 # GNU Radio version: 3.10.12.0
 
-from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import gr
 from gnuradio.filter import firdes
@@ -54,8 +53,6 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
         self.iio_pluto_sink_0.set_attenuation(0, 30)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
-        self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(header_format_default, "packet_len")
-        self.digital_crc32_bb_0 = digital.crc32_bb(False, "packet_len", True)
         self.digital_constellation_modulator_0_0 = digital.generic_mod(
             constellation=qpsk,
             differential=True,
@@ -66,21 +63,13 @@ class TX_GNU_radio(gr.top_block):
             log=False,
             truncate=False)
         self.digital_constellation_modulator_0_0.set_min_output_buffer(131072)
-        self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_char*1, "packet_len", 0)
-        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 1316, "packet_len")
-        self.blocks_stream_to_tagged_stream_0.set_min_output_buffer(131072)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.digital_crc32_bb_0, 0))
-        self.connect((self.blocks_tagged_stream_mux_0, 0), (self.digital_constellation_modulator_0_0, 0))
         self.connect((self.digital_constellation_modulator_0_0, 0), (self.iio_pluto_sink_0, 0))
-        self.connect((self.digital_crc32_bb_0, 0), (self.blocks_tagged_stream_mux_0, 1))
-        self.connect((self.digital_crc32_bb_0, 0), (self.digital_protocol_formatter_bb_0, 0))
-        self.connect((self.digital_protocol_formatter_bb_0, 0), (self.blocks_tagged_stream_mux_0, 0))
-        self.connect((self.network_udp_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
+        self.connect((self.network_udp_source_0, 0), (self.digital_constellation_modulator_0_0, 0))
 
 
     def get_samp_rate(self):
@@ -101,7 +90,6 @@ class TX_GNU_radio(gr.top_block):
 
     def set_header_format_default(self, header_format_default):
         self.header_format_default = header_format_default
-        self.digital_protocol_formatter_bb_0.set_header_format(self.header_format_default)
 
     def get_constellation_obj(self):
         return self.constellation_obj
