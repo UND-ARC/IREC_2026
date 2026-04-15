@@ -90,9 +90,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self._Freq_shift_range = qtgui.Range(-20000, 20000, 10, 0, 200)
         self._Freq_shift_win = qtgui.RangeWidget(self._Freq_shift_range, self.set_Freq_shift, "Freq_shift", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Freq_shift_win)
-        self._Bit_Slip_range = qtgui.Range(0, 7, 1, 0, 200)
-        self._Bit_Slip_win = qtgui.RangeWidget(self._Bit_Slip_range, self.set_Bit_Slip, "Bit_Slip", "counter_slider", int, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._Bit_Slip_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
             1024, #size
             SampleRate, #samp_rate
@@ -206,27 +203,24 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0.set_bbdc(True)
         self.iio_pluto_source_0.set_filter_params('Auto', '', 0, 0)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(4, Loop_Band_width, rrc_taps, 32, 0, 1.5, 1)
-        self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(4, digital.DIFF_DIFFERENTIAL)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(Loop_Band_width, 4, False)
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation_obj)
-        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_char*1, Bit_Slip)
-        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
-        self.blocks_not_xx_0 = blocks.not_bb()
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(2, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/jacob/Code/IREC_2026/Avionics/rocket_flight_raw.ts', False)
         self.blocks_file_sink_0.set_unbuffered(False)
+        self._Bit_Slip_range = qtgui.Range(0, 7, 1, 0, 200)
+        self._Bit_Slip_win = qtgui.RangeWidget(self._Bit_Slip_range, self.set_Bit_Slip, "Bit_Slip", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._Bit_Slip_win)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_not_xx_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_not_xx_0, 0))
-        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
+        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
-        self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.low_pass_filter_0, 0))

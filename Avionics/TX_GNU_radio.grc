@@ -92,7 +92,7 @@ blocks:
     alias: ''
     comment: ''
     constellation: constellation_obj
-    differential: 'True'
+    differential: 'False'
     excess_bw: '0.35'
     log: 'False'
     maxoutbuf: '0'

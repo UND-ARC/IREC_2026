@@ -52,7 +52,7 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
         self.digital_constellation_modulator_0 = digital.generic_mod(
             constellation=constellation_obj,
-            differential=True,
+            differential=False,
             samples_per_symbol=4,
             pre_diff_code=True,
             excess_bw=0.35,
