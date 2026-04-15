@@ -13,7 +13,7 @@ USE_OVERLAY    = False    # Set TRUE to draw telemetry overlay
 if IS_FLIGHT_MODE:
     #Bitrate_Limit = Sample Rate * Bits Per Symbol / Samples Per Symbol
     Bitrate_limit = 1_500_000 * 2 / 4
-    BITRATE = 750_000
+    BITRATE = 1_000_000
     IDR_VAL = 10
 else:
     BITRATE = 3_000_000

@@ -732,7 +732,7 @@ blocks:
     fstop: '0'
     gain1: '''manual'''
     len_tag_key: packet_len
-    manual_gain1: '0'
+    manual_gain1: '10'
     maxoutbuf: '0'
     minoutbuf: '0'
     quadrature: 'True'
