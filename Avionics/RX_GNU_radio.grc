@@ -236,7 +236,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '2'
+    value: '4'
   states:
     bus_sink: false
     bus_source: false
@@ -1209,7 +1209,7 @@ blocks:
     color9: '"dark green"'
     comment: ''
     ctrlpanel: 'False'
-    fc: '915000'
+    fc: '915000000'
     fftsize: '1024'
     freqhalf: 'True'
     grid: 'False'

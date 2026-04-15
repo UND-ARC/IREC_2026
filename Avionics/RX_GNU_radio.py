@@ -66,7 +66,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.sps = sps = 2
+        self.sps = sps = 4
         self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
         self.nfilts = nfilts = 32
@@ -144,7 +144,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
-            915000, #fc
+            915000000, #fc
             samp_rate, #bw
             "", #name
             1,
@@ -411,7 +411,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.iio_pluto_source_0_0.set_samplerate(self.samp_rate)
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 750_000, 100000, window.WIN_HAMMING, 6.76))
-        self.qtgui_freq_sink_x_0.set_frequency_range(915000, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(915000000, self.samp_rate)
 
     def get_rrc_taps(self):
         return self.rrc_taps

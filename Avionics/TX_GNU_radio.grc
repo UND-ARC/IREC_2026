@@ -147,12 +147,12 @@ blocks:
     constellation: qpsk
     differential: 'True'
     excess_bw: '0.35'
-    log: 'False'
+    log: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samples_per_symbol: '2'
+    samples_per_symbol: '4'
     truncate: 'False'
-    verbose: 'False'
+    verbose: 'True'
   states:
     bus_sink: false
     bus_source: false
