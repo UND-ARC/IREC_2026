@@ -33,7 +33,7 @@ class TX_GNU_radio(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 1_000_00
+        self.samp_rate = samp_rate = 10_000_00
         self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
 

@@ -57,7 +57,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '1_000_00'
+    value: '10_000_00'
   states:
     bus_sink: false
     bus_source: false
