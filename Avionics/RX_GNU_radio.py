@@ -235,15 +235,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         for c in range(0, 1):
             self.controls_grid_layout_0.setColumnStretch(c, 1)
         self.network_udp_sink_0_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 10001, 0, 1024, False)
-        self.low_pass_filter_0 = filter.fir_filter_ccf(
-            1,
-            firdes.low_pass(
-                1,
-                samp_rate,
-                500000,
-                100000,
-                window.WIN_HAMMING,
-                6.76))
         self.iio_pluto_source_0_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 131072)
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
         self.iio_pluto_source_0_0.set_frequency(915000000)
@@ -303,8 +294,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.connect((self.digital_linear_equalizer_0, 0), (self.qtgui_const_sink_x_3, 0))
         self.connect((self.digital_map_bb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_linear_equalizer_0, 0))
-        self.connect((self.iio_pluto_source_0_0, 0), (self.low_pass_filter_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.iio_pluto_source_0_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
 
 
     def closeEvent(self, event):

@@ -750,7 +750,7 @@ blocks:
     bus_structure: null
     coordinate: [376, 112.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: network_udp_sink_0_0
   id: network_udp_sink
   parameters:
