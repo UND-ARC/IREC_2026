@@ -78,7 +78,7 @@ blocks:
     start: '0.0'
     step: '0.001'
     stop: '0.1'
-    value: '0.01'
+    value: '0.001'
     widget: slider
   states:
     bus_sink: false
@@ -179,7 +179,7 @@ blocks:
     start: '0.0'
     step: '0.01'
     stop: '1.0'
-    value: 6.28/100.0
+    value: 6.28/200.0
     widget: slider
   states:
     bus_sink: false
@@ -236,7 +236,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '4'
+    value: '2'
   states:
     bus_sink: false
     bus_source: false

@@ -66,7 +66,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.sps = sps = 4
+        self.sps = sps = 2
         self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
         self.nfilts = nfilts = 32
@@ -76,11 +76,11 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.taps = taps = [1.0, 0.25-0.25j, 0.50 + 0.10j, -0.3 + 0.2j]
         self.samp_rate = samp_rate = 1500000
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
-        self.phase_bw = phase_bw = 6.28/100.0
+        self.phase_bw = phase_bw = 6.28/200.0
         self.noise_volt = noise_volt = 0.0001
         self.freq_offset = freq_offset = 0
         self.excess_bw = excess_bw = 0.35
-        self.eq_gain = eq_gain = 0.01
+        self.eq_gain = eq_gain = 0.001
         self.delay = delay = 50
         self.arity = arity = 4
 
@@ -127,7 +127,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self._phase_bw_range = qtgui.Range(0.0, 1.0, 0.01, 6.28/100.0, 200)
+        self._phase_bw_range = qtgui.Range(0.0, 1.0, 0.01, 6.28/200.0, 200)
         self._phase_bw_win = qtgui.RangeWidget(self._phase_bw_range, self.set_phase_bw, "Phase: Bandwidth", "slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._phase_bw_win, 0, 2, 1, 1)
         for r in range(0, 1):
@@ -252,7 +252,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.controls_grid_layout_0.setRowStretch(r, 1)
         for c in range(1, 2):
             self.controls_grid_layout_0.setColumnStretch(c, 1)
-        self._eq_gain_range = qtgui.Range(0.0, 0.1, 0.001, 0.01, 200)
+        self._eq_gain_range = qtgui.Range(0.0, 0.1, 0.001, 0.001, 200)
         self._eq_gain_win = qtgui.RangeWidget(self._eq_gain_range, self.set_eq_gain, "Equalizer: rate", "slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._eq_gain_win, 0, 1, 1, 1)
         for r in range(0, 1):
