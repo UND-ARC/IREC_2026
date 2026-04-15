@@ -230,7 +230,7 @@ blocks:
     header: '0'
     ipv6: 'False'
     maxoutbuf: '0'
-    minoutbuf: '131072'
+    minoutbuf: '0'
     notify_missed: 'True'
     payloadsize: '1316'
     port: '9000'
