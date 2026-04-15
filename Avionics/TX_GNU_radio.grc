@@ -108,7 +108,7 @@ blocks:
     len_tag_key: '"packet_len"'
     maxoutbuf: '0'
     minoutbuf: '0'
-    packet_len: '1316'
+    packet_len: '188'
     type: byte
     vlen: '1'
   states:
@@ -147,12 +147,12 @@ blocks:
     constellation: qpsk
     differential: 'True'
     excess_bw: '0.35'
-    log: 'True'
+    log: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
     samples_per_symbol: '4'
     truncate: 'False'
-    verbose: 'True'
+    verbose: 'False'
   states:
     bus_sink: false
     bus_source: false

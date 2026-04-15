@@ -276,7 +276,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.controls_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.controls_grid_layout_0.setColumnStretch(c, 1)
-        self.network_udp_sink_0_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 10001, 0, 1024, False)
+        self.network_udp_sink_0_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 10001, 0, 1472, False)
         self.low_pass_filter_0 = filter.fir_filter_ccf(
             1,
             firdes.low_pass(
@@ -291,7 +291,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0_0.set_frequency(915000000)
         self.iio_pluto_source_0_0.set_samplerate(samp_rate)
         self.iio_pluto_source_0_0.set_gain_mode(0, 'manual')
-        self.iio_pluto_source_0_0.set_gain(0, 15)
+        self.iio_pluto_source_0_0.set_gain(0, 0)
         self.iio_pluto_source_0_0.set_quadrature(True)
         self.iio_pluto_source_0_0.set_rfdc(True)
         self.iio_pluto_source_0_0.set_bbdc(True)
@@ -317,7 +317,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.digital_crc32_bb_0_0 = digital.crc32_bb(True, "frame", True)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, arity, False)
         self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts('11011011001100001111011100000011',
-          1, 'frame')
+          3, 'frame')
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(qpsk)
         self._delay_range = qtgui.Range(0, 200, 1, 50, 200)
         self._delay_win = qtgui.RangeWidget(self._delay_range, self.set_delay, "Delay", "counter_slider", float, QtCore.Qt.Horizontal)
