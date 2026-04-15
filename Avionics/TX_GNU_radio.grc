@@ -57,7 +57,7 @@ blocks:
   id: variable_header_format_default
   parameters:
     access_code: '11011011001100001111011100000011'
-    bps: '1'
+    bps: '2'
     comment: ''
     threshold: '3'
   states:

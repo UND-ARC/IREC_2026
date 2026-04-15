@@ -315,6 +315,23 @@ blocks:
     coordinate: [984, 392.0]
     rotation: 0
     state: true
+- name: analog_simple_squelch_cc_0
+  id: analog_simple_squelch_cc
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: '0.01'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    threshold: '-35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 168.0]
+    rotation: 0
+    state: enabled
 - name: blocks_char_to_float_0
   id: blocks_char_to_float
   parameters:
@@ -574,7 +591,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     tagname: frame
-    threshold: '3'
+    threshold: '6'
     type: byte
   states:
     bus_sink: false
@@ -713,7 +730,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [648, 92.0]
+    coordinate: [696, 84.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0_0
@@ -1586,6 +1603,7 @@ blocks:
     state: enabled
 
 connections:
+- [analog_simple_squelch_cc_0, '0', digital_pfb_clock_sync_xxx_0, '0']
 - [blocks_char_to_float_0, '0', qtgui_time_sink_x_0, '0']
 - [blocks_char_to_float_0_0, '0', qtgui_time_sink_x_0_0, '0']
 - [blocks_char_to_float_0_0_0, '0', blocks_delay_0, '0']
@@ -1616,7 +1634,7 @@ connections:
 - [iio_pluto_source_0_0, '0', low_pass_filter_0, '0']
 - [iio_pluto_source_0_0, '0', qtgui_const_sink_x_1, '0']
 - [iio_pluto_source_0_0, '0', qtgui_freq_sink_x_0, '0']
-- [low_pass_filter_0, '0', digital_pfb_clock_sync_xxx_0, '0']
+- [low_pass_filter_0, '0', analog_simple_squelch_cc_0, '0']
 
 metadata:
   file_format: 1

@@ -11,6 +11,7 @@
 from PyQt5 import Qt
 from gnuradio import qtgui
 from PyQt5 import QtCore
+from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import filter
@@ -317,7 +318,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.digital_crc32_bb_0_0 = digital.crc32_bb(True, "frame", True)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, arity, False)
         self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts('11011011001100001111011100000011',
-          3, 'frame')
+          6, 'frame')
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(qpsk)
         self._delay_range = qtgui.Range(0, 200, 1, 50, 200)
         self._delay_win = qtgui.RangeWidget(self._delay_range, self.set_delay, "Delay", "counter_slider", float, QtCore.Qt.Horizontal)
@@ -328,11 +329,13 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(2)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "frame", False, gr.GR_MSB_FIRST)
+        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc((-35), 0.01)
 
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.analog_simple_squelch_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_crc32_bb_0_0, 0))
         self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
@@ -347,7 +350,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_linear_equalizer_0, 0))
         self.connect((self.iio_pluto_source_0_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.iio_pluto_source_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.analog_simple_squelch_cc_0, 0))
 
 
     def closeEvent(self, event):

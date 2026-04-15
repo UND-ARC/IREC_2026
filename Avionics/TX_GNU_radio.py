@@ -37,7 +37,7 @@ class TX_GNU_radio(gr.top_block):
         self.samp_rate = samp_rate = 1_500_000
         self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
-        self.header_format_default = header_format_default = digital.header_format_default('11011011001100001111011100000011',3, 1)
+        self.header_format_default = header_format_default = digital.header_format_default('11011011001100001111011100000011',3, 2)
         self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
 
