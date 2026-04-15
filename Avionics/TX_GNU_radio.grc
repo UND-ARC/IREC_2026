@@ -210,7 +210,7 @@ blocks:
     fpass: '0'
     frequency: '915000000'
     fstop: '0'
-    len_tag_key: '1316'
+    len_tag_key: ''
     samplerate: samp_rate
     type: fc32
     uri: ip:192.168.3.1

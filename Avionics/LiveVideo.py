@@ -53,6 +53,7 @@ def main():
         "tune": "zerolatency",
         "repeat_headers": True,  # CRITICAL: Re-sends SPS/PPS headers with every I-frame
         "profile": "baseline",   # Baseline is easier for ffplay to decode under noise
+        "x264opts": f"vbv-maxrate={Constants.BITRATE // 1000}:vbv-bufsize=100",
     }
 
     sock   = None
