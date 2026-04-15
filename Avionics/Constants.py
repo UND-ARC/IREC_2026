@@ -12,7 +12,7 @@ USE_OVERLAY    = True    # Set TRUE to draw telemetry overlay
 
 if IS_FLIGHT_MODE:
     BITRATE = 500_000
-    IDR_VAL = 10
+    IDR_VAL = 15
 else:
     BITRATE = 3_000_000
     IDR_VAL  = 60
