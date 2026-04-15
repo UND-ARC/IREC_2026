@@ -35,6 +35,9 @@ class TX_GNU_radio(gr.top_block):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 1_000_000
+        self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
+        4, 2, 2, 1, 1).base()
+        self.header_format_default = header_format_default = digital.header_format_default('11011011001100001111011100000011',3, 1)
         self.constellation_obj = constellation_obj = digital.constellation_rect([1+1j, -1+1j, -1-1j, 1-1j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
 
@@ -50,24 +53,31 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
         self.iio_pluto_sink_0.set_attenuation(0, 30)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
-        self.digital_constellation_modulator_0 = digital.generic_mod(
-            constellation=constellation_obj,
-            differential=False,
-            samples_per_symbol=4,
+        self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(, "packet_len")
+        self.digital_crc32_bb_0 = digital.crc32_bb(False, "packet_len", True)
+        self.digital_constellation_modulator_0_0 = digital.generic_mod(
+            constellation=qpsk,
+            differential=True,
+            samples_per_symbol=2,
             pre_diff_code=True,
             excess_bw=0.35,
             verbose=False,
             log=False,
             truncate=False)
-        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(8, 1, "", False, gr.GR_MSB_FIRST)
+        self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_char*1, "packet_len", 0)
+        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 512, "packet_len")
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_constellation_modulator_0, 0))
-        self.connect((self.digital_constellation_modulator_0, 0), (self.iio_pluto_sink_0, 0))
-        self.connect((self.network_udp_source_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.digital_crc32_bb_0, 0))
+        self.connect((self.blocks_tagged_stream_mux_0, 0), (self.digital_constellation_modulator_0_0, 0))
+        self.connect((self.digital_constellation_modulator_0_0, 0), (self.iio_pluto_sink_0, 0))
+        self.connect((self.digital_crc32_bb_0, 0), (self.blocks_tagged_stream_mux_0, 1))
+        self.connect((self.digital_crc32_bb_0, 0), (self.digital_protocol_formatter_bb_0, 0))
+        self.connect((self.digital_protocol_formatter_bb_0, 0), (self.blocks_tagged_stream_mux_0, 0))
+        self.connect((self.network_udp_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
 
 
     def get_samp_rate(self):
@@ -76,6 +86,18 @@ class TX_GNU_radio(gr.top_block):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.iio_pluto_sink_0.set_samplerate(self.samp_rate)
+
+    def get_qpsk(self):
+        return self.qpsk
+
+    def set_qpsk(self, qpsk):
+        self.qpsk = qpsk
+
+    def get_header_format_default(self):
+        return self.header_format_default
+
+    def set_header_format_default(self, header_format_default):
+        self.header_format_default = header_format_default
 
     def get_constellation_obj(self):
         return self.constellation_obj

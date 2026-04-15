@@ -65,7 +65,9 @@ def main():
             #sock.connect(("127.0.0.1", 9000))
 
             #videoOutput =  PyavOutput(f"pipe:{sock.fileno()}", format="mpegts")
-            videoOutput = PyavOutput("udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1", format="mpegts")
+            udp_url = "udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1&buffer_size=0"
+
+            videoOutput = PyavOutput(udp_url, format="mpegts")
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
         else:
             print(f"[*] Connecting to Laptop at {Constants.Laptop_IP}:{Constants.Laptop_Port}...")

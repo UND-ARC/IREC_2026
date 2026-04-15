@@ -50,41 +50,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [264, 380.0]
-    rotation: 0
-    state: enabled
-- name: header_format_default
-  id: variable_header_format_default
-  parameters:
-    access_code: '11011011001100001111011100000011'
-    bps: '1'
-    comment: ''
-    threshold: '3'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [496, 72.0]
-    rotation: 0
-    state: enabled
-- name: qpsk
-  id: variable_constellation_rect
-  parameters:
-    comment: ''
-    const_points: '[0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j]'
-    imag_sect: '2'
-    precision: '8'
-    real_sect: '2'
-    rot_sym: '4'
-    soft_dec_lut: None
-    sym_map: '[0, 1, 2, 3]'
-    w_imag_sect: '1'
-    w_real_sect: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [80, 380.0]
+    coordinate: [392, 68.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -99,100 +65,46 @@ blocks:
     coordinate: [200, 12]
     rotation: 0
     state: enabled
-- name: blocks_stream_to_tagged_stream_0
-  id: blocks_stream_to_tagged_stream
+- name: blocks_repack_bits_bb_0
+  id: blocks_repack_bits_bb
   parameters:
     affinity: ''
     alias: ''
+    align_output: 'False'
     comment: ''
-    len_tag_key: '"packet_len"'
+    endianness: gr.GR_MSB_FIRST
+    k: '8'
+    l: '1'
+    len_tag_key: '""'
     maxoutbuf: '0'
     minoutbuf: '0'
-    packet_len: '512'
-    type: byte
-    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 264.0]
+    coordinate: [376, 352.0]
     rotation: 0
     state: enabled
-- name: blocks_tagged_stream_mux_0
-  id: blocks_tagged_stream_mux
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    lengthtagname: '"packet_len"'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    ninputs: '2'
-    tag_preserve_head_pos: '0'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [776, 256.0]
-    rotation: 0
-    state: enabled
-- name: digital_constellation_modulator_0_0
+- name: digital_constellation_modulator_0
   id: digital_constellation_modulator
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    constellation: qpsk
-    differential: 'True'
+    constellation: constellation_obj
+    differential: 'False'
     excess_bw: '0.35'
     log: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samples_per_symbol: '2'
+    samples_per_symbol: '4'
     truncate: 'False'
     verbose: 'False'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [848, 360.0]
-    rotation: 0
-    state: true
-- name: digital_crc32_bb_0
-  id: digital_crc32_bb
-  parameters:
-    affinity: ''
-    alias: ''
-    check: 'False'
-    comment: ''
-    lengthtagname: '"packet_len"'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    packed: 'True'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [504, 256.0]
-    rotation: 0
-    state: enabled
-- name: digital_protocol_formatter_bb_0
-  id: digital_protocol_formatter_bb
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    format: ''
-    len_tag_key: '"packet_len"'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [736, 96.0]
+    coordinate: [576, 336.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_sink_0
@@ -218,7 +130,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1104, 188.0]
+    coordinate: [808, 300.0]
     rotation: 0
     state: enabled
 - name: network_udp_source_0
@@ -241,18 +153,14 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 240.0]
+    coordinate: [160, 328.0]
     rotation: 0
     state: enabled
 
 connections:
-- [blocks_stream_to_tagged_stream_0, '0', digital_crc32_bb_0, '0']
-- [blocks_tagged_stream_mux_0, '0', digital_constellation_modulator_0_0, '0']
-- [digital_constellation_modulator_0_0, '0', iio_pluto_sink_0, '0']
-- [digital_crc32_bb_0, '0', blocks_tagged_stream_mux_0, '1']
-- [digital_crc32_bb_0, '0', digital_protocol_formatter_bb_0, '0']
-- [digital_protocol_formatter_bb_0, '0', blocks_tagged_stream_mux_0, '0']
-- [network_udp_source_0, '0', blocks_stream_to_tagged_stream_0, '0']
+- [blocks_repack_bits_bb_0, '0', digital_constellation_modulator_0, '0']
+- [digital_constellation_modulator_0, '0', iio_pluto_sink_0, '0']
+- [network_udp_source_0, '0', blocks_repack_bits_bb_0, '0']
 
 metadata:
   file_format: 1
