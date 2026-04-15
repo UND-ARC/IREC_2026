@@ -61,13 +61,17 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            udp_url = f"udp://127.0.0.1:9000?pkt_size=1316&bitrate={Constants.MUXRATE}"
+            # 1. Restored flush_packets=1 and kept the pacing bitrate
+            udp_url = f"udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1&bitrate={Constants.MUXRATE}"
 
-            # 2. Add options={"muxrate": ...} to PAD the stream with dummy data
+            # 2. Added pcr_period to force the muxer to push data out instantly
             videoOutput = PyavOutput(
                 udp_url,
                 format="mpegts",
-                options={"muxrate": str(Constants.MUXRATE)}
+                options={
+                    "muxrate": str(Constants.MUXRATE),
+                    "pcr_period": "20"  # Forces timing updates every 20ms
+                }
             )
 
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")
