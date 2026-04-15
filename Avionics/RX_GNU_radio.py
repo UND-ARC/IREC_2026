@@ -71,12 +71,12 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         4, 2, 2, 1, 1).base()
         self.nfilts = nfilts = 32
         self.variable_adaptive_algorithm_0 = variable_adaptive_algorithm_0 = digital.adaptive_algorithm_cma( qpsk, .0001, 4).base()
-        self.timing_loop_bw = timing_loop_bw = 6.28/100.0
+        self.timing_loop_bw = timing_loop_bw = 6.28/50.0
         self.time_offset = time_offset = 1.00
         self.taps = taps = [1.0, 0.25-0.25j, 0.50 + 0.10j, -0.3 + 0.2j]
         self.samp_rate = samp_rate = 1500000
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
-        self.phase_bw = phase_bw = 6.28/200.0
+        self.phase_bw = phase_bw = 6.28/25.0
         self.noise_volt = noise_volt = 0.0001
         self.freq_offset = freq_offset = 0
         self.excess_bw = excess_bw = 0.35
@@ -104,7 +104,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self._timing_loop_bw_range = qtgui.Range(0.0, 0.2, 0.01, 6.28/100.0, 200)
+        self._timing_loop_bw_range = qtgui.Range(0.0, 0.2, 0.01, 6.28/50.0, 200)
         self._timing_loop_bw_win = qtgui.RangeWidget(self._timing_loop_bw_range, self.set_timing_loop_bw, "Time: BW", "slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._timing_loop_bw_win, 0, 0, 1, 1)
         for r in range(0, 1):
@@ -127,7 +127,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self._phase_bw_range = qtgui.Range(0.0, 1.0, 0.01, 6.28/200.0, 200)
+        self._phase_bw_range = qtgui.Range(0.0, 1.0, 0.01, 6.28/25.0, 200)
         self._phase_bw_win = qtgui.RangeWidget(self._phase_bw_range, self.set_phase_bw, "Phase: Bandwidth", "slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._phase_bw_win, 0, 2, 1, 1)
         for r in range(0, 1):
