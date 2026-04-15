@@ -24,18 +24,5 @@ MODE_STR = "FLIGHT" if IS_FLIGHT_MODE else "BENCH"
 
 
 
-RX_FREQ    = 915_000_000
-RX_GAIN           = 20   # dB, 0 to 73
-RX_BUFFER_SAMPLES = 8192
-
-TX_FREQ           = 915_000_000
-TX_BW             = 10_000_000
-TX_GAIN           = -50 # dB, -90 to 0
-TX_BUFFER_SAMPLES = 8192
-
-CHUNK_SIZE        = 1024
-PREAMBLE_LEN      = 64
-SAMP_RATE       = 1_000_000
-SPS        = 4           # samples per symbol
 
 
