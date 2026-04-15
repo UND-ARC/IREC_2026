@@ -196,7 +196,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
                 window.WIN_HAMMING,
                 6.76))
         self.iio_pluto_source_0 = iio.fmcomms2_source_fc32('ip:192.168.4.1' if 'ip:192.168.4.1' else iio.get_pluto_uri(), [True, True], 65536)
-        self.iio_pluto_source_0.set_len_tag_key('1316')
+        self.iio_pluto_source_0.set_len_tag_key('')
         self.iio_pluto_source_0.set_frequency((915000000 + Freq_shift))
         self.iio_pluto_source_0.set_samplerate(SampleRate)
         self.iio_pluto_source_0.set_gain_mode(0, 'manual')
@@ -223,7 +223,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation_obj)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_char*1, Bit_Slip)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
-        self.blocks_not_xx_0 = blocks.not_bb()
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/jacob/Code/IREC_2026/Avionics/rocket_flight_raw.ts', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
@@ -231,10 +230,9 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_not_xx_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_not_xx_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
         self.connect((self.digital_correlate_access_code_tag_xx_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))

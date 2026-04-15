@@ -93,7 +93,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [408, 464.0]
+    coordinate: [392, 352.0]
     rotation: 0
     state: enabled
 - name: SampleRate
@@ -190,7 +190,7 @@ blocks:
     bus_structure: null
     coordinate: [752.0, 272]
     rotation: 270
-    state: enabled
+    state: bypassed
 - name: blocks_repack_bits_bb_0
   id: blocks_repack_bits_bb
   parameters:
@@ -319,7 +319,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [192, 204.0]
+    coordinate: [400, 436.0]
     rotation: 0
     state: disabled
 - name: digital_symbol_sync_xx_0
@@ -364,7 +364,7 @@ blocks:
     frequency: 915000000 + Freq_shift
     fstop: '0'
     gain1: '''manual'''
-    len_tag_key: '1316'
+    len_tag_key: ''
     manual_gain1: '15'
     maxoutbuf: '0'
     minoutbuf: '0'
