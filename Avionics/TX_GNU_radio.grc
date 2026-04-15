@@ -234,7 +234,7 @@ blocks:
     notify_missed: 'True'
     payloadsize: '1316'
     port: '9000'
-    src_zeros: 'True'
+    src_zeros: 'False'
     type: byte
     vlen: '1'
   states:
