@@ -84,7 +84,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1016, 488.0]
+    coordinate: [1016, 504.0]
     rotation: 0
     state: enabled
 - name: excess_bw
@@ -123,7 +123,7 @@ blocks:
 - name: header_format_default
   id: variable_header_format_default
   parameters:
-    access_code: '11111111000000001111111100000000'
+    access_code: '11011011001100001111011100000011'
     bps: '1'
     comment: ''
     threshold: '0'
@@ -133,7 +133,7 @@ blocks:
     bus_structure: null
     coordinate: [584, 536.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: nfilts
   id: variable
   parameters:
@@ -224,7 +224,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '15000000'
+    value: '1500000'
   states:
     bus_sink: false
     bus_source: false
@@ -236,7 +236,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '4'
+    value: '2'
   states:
     bus_sink: false
     bus_source: false
@@ -295,7 +295,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [888, 488.0]
+    coordinate: [888, 496.0]
     rotation: 0
     state: enabled
 - name: variable_adaptive_algorithm_0
@@ -331,7 +331,7 @@ blocks:
     bus_structure: null
     coordinate: [664, 320.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_char_to_float_0_0
   id: blocks_char_to_float
   parameters:
@@ -348,7 +348,7 @@ blocks:
     bus_structure: null
     coordinate: [648, 384.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_char_to_float_0_0_0
   id: blocks_char_to_float
   parameters:
@@ -365,7 +365,7 @@ blocks:
     bus_structure: null
     coordinate: [488, 432.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_char_to_float_0_0_1
   id: blocks_char_to_float
   parameters:
@@ -382,7 +382,7 @@ blocks:
     bus_structure: null
     coordinate: [1096, 704.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_delay_0
   id: blocks_delay
   parameters:
@@ -402,7 +402,7 @@ blocks:
     bus_structure: null
     coordinate: [648, 432.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_file_sink_0
   id: blocks_file_sink
   parameters:
@@ -461,7 +461,7 @@ blocks:
     bus_structure: null
     coordinate: [888, 856.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_unpack_k_bits_bb_0
   id: blocks_unpack_k_bits_bb
   parameters:
@@ -493,7 +493,7 @@ blocks:
     bus_structure: null
     coordinate: [328, 432.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_vector_source_x_0
   id: blocks_vector_source_x
   parameters:
@@ -513,7 +513,7 @@ blocks:
     bus_structure: null
     coordinate: [200, 336.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: controls
   id: qtgui_tab_widget
   parameters:
@@ -574,7 +574,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     tagname: frame
-    threshold: '0'
+    threshold: '1'
     type: byte
   states:
     bus_sink: false
@@ -717,14 +717,38 @@ blocks:
     minoutbuf: '0'
     quadrature: 'True'
     rfdc: 'True'
-    samplerate: samp_rate*2
+    samplerate: samp_rate
     type: fc32
     uri: ip:192.168.4.1
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [216, 108.0]
+    coordinate: [160, 92.0]
+    rotation: 0
+    state: enabled
+- name: low_pass_filter_0
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: '500000'
+    decim: '1'
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_ccf
+    width: '100000'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 112.0]
     rotation: 0
     state: enabled
 - name: network_udp_sink_0_0
@@ -763,7 +787,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1160, 528.0]
+    coordinate: [1152, 536.0]
     rotation: 0
     state: true
 - name: qtgui_const_sink_x_0
@@ -947,9 +971,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [440, 96.0]
+    coordinate: [472, 80.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_const_sink_x_2
   id: qtgui_const_sink_x
   parameters:
@@ -1041,7 +1065,7 @@ blocks:
     bus_structure: null
     coordinate: [904, 144.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_const_sink_x_3
   id: qtgui_const_sink_x
   parameters:
@@ -1230,7 +1254,7 @@ blocks:
     bus_structure: null
     coordinate: [824, 304.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_time_sink_x_0_0
   id: qtgui_time_sink_x
   parameters:
@@ -1327,7 +1351,7 @@ blocks:
     bus_structure: null
     coordinate: [824, 384.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_time_sink_x_1
   id: qtgui_time_sink_x
   parameters:
@@ -1424,7 +1448,7 @@ blocks:
     bus_structure: null
     coordinate: [1272, 720.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: received
   id: qtgui_tab_widget
   parameters:
@@ -1486,8 +1510,9 @@ connections:
 - [digital_map_bb_0, '0', blocks_unpack_k_bits_bb_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', digital_linear_equalizer_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', qtgui_const_sink_x_2, '0']
-- [iio_pluto_source_0_0, '0', digital_pfb_clock_sync_xxx_0, '0']
+- [iio_pluto_source_0_0, '0', low_pass_filter_0, '0']
 - [iio_pluto_source_0_0, '0', qtgui_const_sink_x_1, '0']
+- [low_pass_filter_0, '0', digital_pfb_clock_sync_xxx_0, '0']
 
 metadata:
   file_format: 1

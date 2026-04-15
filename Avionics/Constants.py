@@ -11,7 +11,9 @@ IS_FLIGHT_MODE = True   # Set TRUE for RF, Set false for Ethernet to laptop
 USE_OVERLAY    = False    # Set TRUE to draw telemetry overlay
 
 if IS_FLIGHT_MODE:
-    BITRATE = 800_000
+    #Bitrate_Limit = Sample Rate * Bits Per Symbol / Samples Per Symbol
+    Bitrate_limit = 1_500_000 * 2 / 4
+    BITRATE = 700_000
     IDR_VAL = 10
 else:
     BITRATE = 3_000_000
