@@ -338,7 +338,7 @@ blocks:
     bus_structure: null
     coordinate: [536, 176.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_char_to_float_0
   id: blocks_char_to_float
   parameters:
@@ -606,7 +606,7 @@ blocks:
     bus_structure: null
     coordinate: [424, 688.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: digital_costas_loop_cc_0
   id: digital_costas_loop_cc
   parameters:
@@ -642,7 +642,7 @@ blocks:
     bus_structure: null
     coordinate: [856, 672.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: digital_diff_decoder_bb_0
   id: digital_diff_decoder_bb
   parameters:

@@ -64,7 +64,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 72.0]
+    coordinate: [304, 24.0]
     rotation: 0
     state: enabled
 - name: qpsk
@@ -115,9 +115,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 264.0]
+    coordinate: [280, 168.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -135,9 +135,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [776, 256.0]
+    coordinate: [784, 184.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: digital_constellation_modulator_0_0
   id: digital_constellation_modulator
   parameters:
@@ -157,7 +157,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [848, 360.0]
+    coordinate: [800, 304.0]
     rotation: 0
     state: true
 - name: digital_crc32_bb_0
@@ -175,9 +175,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 256.0]
+    coordinate: [504, 160.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: digital_protocol_formatter_bb_0
   id: digital_protocol_formatter_bb
   parameters:
@@ -192,9 +192,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [736, 96.0]
+    coordinate: [712, 64.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: iio_pluto_sink_0
   id: iio_pluto_sink
   parameters:
@@ -253,6 +253,7 @@ connections:
 - [digital_crc32_bb_0, '0', digital_protocol_formatter_bb_0, '0']
 - [digital_protocol_formatter_bb_0, '0', blocks_tagged_stream_mux_0, '0']
 - [network_udp_source_0, '0', blocks_stream_to_tagged_stream_0, '0']
+- [network_udp_source_0, '0', digital_constellation_modulator_0_0, '0']
 
 metadata:
   file_format: 1

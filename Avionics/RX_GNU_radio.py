@@ -113,9 +113,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.controls_grid_layout_1.setRowStretch(r, 1)
         for c in range(0, 1):
             self.controls_grid_layout_1.setColumnStretch(c, 1)
-        self._squelch_threshold_range = qtgui.Range(-100, 0, 1, -70, 200)
-        self._squelch_threshold_win = qtgui.RangeWidget(self._squelch_threshold_range, self.set_squelch_threshold, "squelch_threshold", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._squelch_threshold_win)
         self.received = Qt.QTabWidget()
         self.received_widget_0 = Qt.QWidget()
         self.received_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.received_widget_0)
@@ -146,6 +143,9 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.controls_grid_layout_0.setRowStretch(r, 1)
         for c in range(2, 3):
             self.controls_grid_layout_0.setColumnStretch(c, 1)
+        self._squelch_threshold_range = qtgui.Range(-100, 0, 1, -70, 200)
+        self._squelch_threshold_win = qtgui.RangeWidget(self._squelch_threshold_range, self.set_squelch_threshold, "squelch_threshold", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._squelch_threshold_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -319,10 +319,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.digital_map_bb_0 = digital.map_bb([0,1,2,3])
         self.digital_linear_equalizer_0 = digital.linear_equalizer(15, 2, variable_adaptive_algorithm_0, True, [ ], 'corr_est')
         self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(4, digital.DIFF_DIFFERENTIAL)
-        self.digital_crc32_bb_0_0 = digital.crc32_bb(True, "frame", True)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, arity, False)
-        self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts('11011011001100001111011100000011',
-          1, 'frame')
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(qpsk)
         self._delay_range = qtgui.Range(0, 200, 1, 50, 200)
         self._delay_win = qtgui.RangeWidget(self._delay_range, self.set_delay, "Delay", "counter_slider", float, QtCore.Qt.Horizontal)
@@ -333,21 +330,16 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(2)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "frame", False, gr.GR_MSB_FIRST)
-        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 0.5)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_simple_squelch_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
-        self.connect((self.analog_simple_squelch_cc_0, 0), (self.qtgui_freq_sink_x_0, 1))
-        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_crc32_bb_0_0, 0))
-        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
-        self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
-        self.connect((self.digital_crc32_bb_0_0, 0), (self.network_udp_sink_0_0, 0))
         self.connect((self.digital_diff_decoder_bb_0, 0), (self.digital_map_bb_0, 0))
         self.connect((self.digital_linear_equalizer_0, 0), (self.digital_costas_loop_cc_0, 0))
         self.connect((self.digital_linear_equalizer_0, 0), (self.qtgui_const_sink_x_3, 0))
@@ -355,7 +347,8 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_linear_equalizer_0, 0))
         self.connect((self.iio_pluto_source_0_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.iio_pluto_source_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.analog_simple_squelch_cc_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.qtgui_freq_sink_x_0, 1))
 
 
     def closeEvent(self, event):
