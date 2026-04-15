@@ -64,7 +64,6 @@ class TX_GNU_radio(gr.top_block):
             verbose=False,
             log=False,
             truncate=False)
-        self.digital_constellation_modulator_0_0.set_min_output_buffer(131072)
         self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_char*1, "packet_len", 0)
         self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 1316, "packet_len")
 

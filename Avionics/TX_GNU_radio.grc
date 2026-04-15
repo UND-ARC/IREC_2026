@@ -149,7 +149,7 @@ blocks:
     excess_bw: '0.35'
     log: 'False'
     maxoutbuf: '0'
-    minoutbuf: '131072'
+    minoutbuf: '0'
     samples_per_symbol: '2'
     truncate: 'False'
     verbose: 'False'
