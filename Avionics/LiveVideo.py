@@ -61,16 +61,16 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            # 1. Restored flush_packets=1 and kept the pacing bitrate
-            udp_url = f"udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1&bitrate={Constants.MUXRATE}"
+            # Removed the pacing bitrate, kept flush_packets to stop the blips
+            udp_url = "udp://127.0.0.1:9000?pkt_size=1316&flush_packets=1"
 
-            # 2. Added pcr_period to force the muxer to push data out instantly
+            # Kept muxrate padding, added pcr_period to force continuous flow
             videoOutput = PyavOutput(
                 udp_url,
                 format="mpegts",
                 options={
                     "muxrate": str(Constants.MUXRATE),
-                    "pcr_period": "20"  # Forces timing updates every 20ms
+                    "pcr_period": "20"  # Forces the stream to flush every 20ms
                 }
             )
 

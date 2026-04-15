@@ -107,7 +107,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
         self._timing_loop_bw_range = qtgui.Range(0.0, 0.2, 0.01, 6.28/50.0, 200)
-        self._timing_loop_bw_win = qtgui.RangeWidget(self._timing_loop_bw_range, self.set_timing_loop_bw, "Time: BW", "slider", float, QtCore.Qt.Horizontal)
+        self._timing_loop_bw_win = qtgui.RangeWidget(self._timing_loop_bw_range, self.set_timing_loop_bw, "Time: BW", "counter_slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._timing_loop_bw_win, 0, 0, 1, 1)
         for r in range(0, 1):
             self.controls_grid_layout_1.setRowStretch(r, 1)
@@ -133,7 +133,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
         self._phase_bw_range = qtgui.Range(0.0, 1.0, 0.01, 6.28/25.0, 200)
-        self._phase_bw_win = qtgui.RangeWidget(self._phase_bw_range, self.set_phase_bw, "Phase: Bandwidth", "slider", float, QtCore.Qt.Horizontal)
+        self._phase_bw_win = qtgui.RangeWidget(self._phase_bw_range, self.set_phase_bw, "Phase: Bandwidth", "counter_slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._phase_bw_win, 0, 2, 1, 1)
         for r in range(0, 1):
             self.controls_grid_layout_1.setRowStretch(r, 1)
@@ -333,7 +333,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(2)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "frame", False, gr.GR_MSB_FIRST)
-        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 0.01)
+        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 0.5)
 
 
         ##################################################

@@ -166,7 +166,7 @@ blocks:
     step: '0.01'
     stop: '1.0'
     value: 6.28/25.0
-    widget: slider
+    widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
@@ -297,7 +297,7 @@ blocks:
     step: '0.01'
     stop: '0.2'
     value: 6.28/50.0
-    widget: slider
+    widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
@@ -327,7 +327,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    alpha: '0.01'
+    alpha: '0.5'
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
