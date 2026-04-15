@@ -8,7 +8,7 @@ Laptop_IP = "10.42.0.1"
 Laptop_Port = 10001
 
 IS_FLIGHT_MODE = True   # Set TRUE for RF, Set false for Ethernet to laptop
-USE_OVERLAY    = True    # Set TRUE to draw telemetry overlay
+USE_OVERLAY    = False    # Set TRUE to draw telemetry overlay
 
 if IS_FLIGHT_MODE:
     BITRATE = 800_000
