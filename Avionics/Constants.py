@@ -14,7 +14,7 @@ if IS_FLIGHT_MODE:
     # BITRATE is the actual video payload (leaves room for shaking)
     BITRATE = 500_000
     # MUXRATE is the total pipe size. Must be just under your 750k radio limit
-    MUXRATE = 720_000
+    #MUXRATE = 720_000
     IDR_VAL = 10
 else:
     BITRATE = 3_000_000

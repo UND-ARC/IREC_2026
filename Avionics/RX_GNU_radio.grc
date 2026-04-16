@@ -210,7 +210,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '2000000'
+    value: '2_000_000'
   states:
     bus_sink: false
     bus_source: false
@@ -691,7 +691,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     num_taps: '15'
-    sps: sps
+    sps: '2'
     training_sequence: '[ ]'
     training_start_tag: corr_est
   states:
