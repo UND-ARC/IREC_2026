@@ -132,7 +132,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self._phase_bw_range = qtgui.Range(0.0, 1.0, 0.01, 6.28/25.0, 200)
+        self._phase_bw_range = qtgui.Range(0.0, .3, 0.01, 6.28/25.0, 200)
         self._phase_bw_win = qtgui.RangeWidget(self._phase_bw_range, self.set_phase_bw, "Phase: Bandwidth", "counter_slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_1.addWidget(self._phase_bw_win, 0, 2, 1, 1)
         for r in range(0, 1):

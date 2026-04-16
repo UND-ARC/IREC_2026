@@ -103,7 +103,8 @@ def main():
     # Configure the dual hardware streams
     config = picam2.create_video_configuration(
         main={"size": (2304, 1296), "format": "YUV420"},  # High Res directly to SD Card
-        lores={"size": (480, 270), "format": "YUV420"},  # Low Res to SDR (Test new sizes here)
+        lores={"size": (854 , 480), "format": "YUV420"},  # Low Res to SDR (Test new sizes here)
+        #854 x 480, 640 x 360, 480 x 270, 320 x 180
         controls=dynamic_fps
     )
     picam2.configure(config)

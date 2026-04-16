@@ -164,7 +164,7 @@ blocks:
     rangeType: float
     start: '0.0'
     step: '0.01'
-    stop: '1.0'
+    stop: '.3'
     value: 6.28/25.0
     widget: counter_slider
   states:
