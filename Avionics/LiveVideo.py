@@ -60,15 +60,16 @@ def apply_overlay(request):
 def main():
     picam2 = Picamera2()
 
-    # Force the sensor to exactly FPS
-    fps_120 = {"FrameDurationLimits": (8333, 8333)}
-    fps_60 = {"FrameDurationLimits": (16666, 16666)}
+    target_fps = 30
+    # Calculate microseconds per frame from the integer in Constants
+    frame_time_us = 1_000_000 // target_fps
+    dynamic_fps = {"FrameDurationLimits": (frame_time_us, frame_time_us)}
 
     # Configure the dual hardware streams
     config = picam2.create_video_configuration(
-        main={"size": (1536, 864), "format": "YUV420"},  # High Res directly to SD Card
+        main={"size": (2304, 1296), "format": "YUV420"},  # High Res directly to SD Card
         lores={"size": (480, 270), "format": "YUV420"},  # Low Res to SDR (Test new sizes here)
-        controls=fps_120
+        controls=dynamic_fps
     )
     picam2.configure(config)
 

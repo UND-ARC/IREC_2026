@@ -3,13 +3,17 @@ pass: ARC
 
 #on pi
 cd Github/IREC_2026/Avionics/
-source venv/bin/activate
 pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps 
 
-python LiveVideo.py
-
+#this first
 python TX_GNU_radio.py
 
+#then this
+python LiveVideo.py
+
+
+#process video after
+ffmpeg -framerate 120 -i Flight_HD_20260416_143000.h264 -c copy Output_Video.mp4
 
 #on laptop
 #for bench mode
@@ -26,13 +30,5 @@ or in VLC udp:// @127 .0.0.1:10001
 #to find the ip
 iio_info --scan
 
-#fix shmat errors on pi
-ipcs -m | awk '$2 ~ /[0-9]+/ {print $2}' | xargs -n1 ipcrm -m 2>/dev/null
-sudo sysctl -w kernel.shmmax=67108864
 
-sudo modprobe uio_pdrv_genirq
-
-nano /etc/security/limits.conf
-@realtime - rtprio 99
-@realtime - memlock unlimited
 
