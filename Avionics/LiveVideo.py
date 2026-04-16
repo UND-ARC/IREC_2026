@@ -75,7 +75,7 @@ def main():
 
     if Constants.USE_OVERLAY:
         picam2.pre_callback = apply_overlay
-        picam2.set_overlay()
+
 
     print(f"[*] Starting {Constants.MODE_STR} MODE (Overlay: {Constants.USE_OVERLAY})")
 
