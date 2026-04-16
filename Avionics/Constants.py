@@ -11,8 +11,7 @@ IS_FLIGHT_MODE = True   # Set TRUE for RF, Set false for Ethernet to laptop
 USE_OVERLAY    = True    # Set TRUE to draw telemetry overlay
 
 if IS_FLIGHT_MODE:
-    # BITRATE is the actual video payload (leaves room for shaking)
-    BITRATE = 700_000
+    BITRATE = 500_000
     IDR_VAL = 10
 else:
     BITRATE = 3_000_000
