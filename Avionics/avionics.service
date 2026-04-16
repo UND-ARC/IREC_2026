@@ -14,8 +14,8 @@ WorkingDirectory=/home/jacob/irec_2026/Avionics
 ExecStart=/bin/bash /home/jacob/irec_2026/Avionics/start_avionics.sh
 
 # Route both standard output (prints) and errors to your log file
-StandardOutput=append:/home/jacob/irec_2026/Avionics/flight_log.txt
-StandardError=append:/home/jacob/irec_2026/Avionics/flight_log.txt
+StandardOutput=append:/home/arc/Github/IREC_2026/Avionics/flight_log.txt
+StandardError=append:/home/arc/Github/IREC_2026/Avionics/flight_log.txt
 
 # Automatically restart if the scripts crash
 Restart=on-failure
