@@ -8,10 +8,10 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=jacob
-WorkingDirectory=/home/jacob/irec_2026/Avionics
+WorkingDirectory=/home/arc/Github/IREC_2026/Avionics
 
 # Execute the wrapper script
-ExecStart=/bin/bash /home/jacob/irec_2026/Avionics/start_avionics.sh
+ExecStart=/bin/bash /home/arc/Github/IREC_2026/Avionics/start_avionics.sh
 
 # Route both standard output (prints) and errors to your log file
 StandardOutput=append:/home/arc/Github/IREC_2026/Avionics/flight_log.txt
