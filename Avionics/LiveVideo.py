@@ -101,7 +101,7 @@ def main():
             sdr_output = PyavOutput(udp_url, format="mpegts")
 
             # Setup the Local File with Timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
             filename = f"Flight_HD_{timestamp}.h264"
 
             # Use raw unbuffered file writing for maximum crash protection
