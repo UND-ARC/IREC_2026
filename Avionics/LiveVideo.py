@@ -104,7 +104,7 @@ def main():
             filename = f"Flight_HD_{timestamp}.h264"
 
             # Use raw unbuffered file writing for maximum crash protection
-            local_file = open(filename, "wb", buffering=0)
+            local_file = open(filename, "wb")
             local_output = FileOutput(local_file)
 
             print(f"[*] FLIGHT MODE — Streaming SDR and Saving HD to {filename}")
