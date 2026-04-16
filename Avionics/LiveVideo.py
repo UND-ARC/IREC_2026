@@ -36,9 +36,13 @@ def apply_overlay(request):
     for stream_name in ["main", "lores"]:
         try:
             with MappedArray(request, stream_name) as m:
-                h, w = m.array.shape[:2]
+                # 1. Get the raw array shape
+                array_h, w = m.array.shape[:2]
 
-                # 1. Scale font dynamically based on frame height
+                # 2. Extract the TRUE height (just the top 2/3rds Luma plane)
+                h = int(array_h * 2 / 3)
+
+                # 3. Scale font dynamically based on the TRUE frame height
                 font_scale = max(0.4, h / 900.0)
                 font_thick = max(1, int(2 * font_scale))
                 font = cv2.FONT_HERSHEY_SIMPLEX
