@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# The -u flag forces Python to write logs instantly, saving them during a crash
+python3 -u /home/jacob/irec_2026/Avionics/TX_GNU_radio.py &
+sleep 10
+python3 -u /home/jacob/irec_2026/Avionics/LiveVideo.py &
+
+# Wait keeps the script running as long as the background tasks are running
+wait

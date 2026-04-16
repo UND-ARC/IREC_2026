@@ -80,6 +80,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
         self.phase_bw = phase_bw = 6.28/25.0
         self.noise_volt = noise_volt = 0.0001
+        self.gain = gain = 20
         self.freq_offset = freq_offset = 0
         self.excess_bw = excess_bw = 0.35
         self.eq_gain = eq_gain = 0.001
@@ -139,6 +140,9 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.controls_grid_layout_1.setRowStretch(r, 1)
         for c in range(2, 3):
             self.controls_grid_layout_1.setColumnStretch(c, 1)
+        self._gain_range = qtgui.Range(0, 50, 1, 20, 200)
+        self._gain_win = qtgui.RangeWidget(self._gain_range, self.set_gain, "rx gain", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._gain_win)
         self._time_offset_range = qtgui.Range(0.999, 1.001, 0.0001, 1.00, 200)
         self._time_offset_win = qtgui.RangeWidget(self._time_offset_range, self.set_time_offset, "Timing Offset", "counter_slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_0.addWidget(self._time_offset_win, 0, 2, 1, 1)
@@ -295,8 +299,8 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
         self.iio_pluto_source_0_0.set_frequency(915000000)
         self.iio_pluto_source_0_0.set_samplerate(samp_rate)
-        self.iio_pluto_source_0_0.set_gain_mode(0, 'manual')
-        self.iio_pluto_source_0_0.set_gain(0, 10)
+        self.iio_pluto_source_0_0.set_gain_mode(0, 'slow_attack')
+        self.iio_pluto_source_0_0.set_gain(0, gain)
         self.iio_pluto_source_0_0.set_quadrature(True)
         self.iio_pluto_source_0_0.set_rfdc(True)
         self.iio_pluto_source_0_0.set_bbdc(True)
@@ -447,6 +451,13 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
     def set_noise_volt(self, noise_volt):
         self.noise_volt = noise_volt
+
+    def get_gain(self):
+        return self.gain
+
+    def set_gain(self, gain):
+        self.gain = gain
+        self.iio_pluto_source_0_0.set_gain(0, self.gain)
 
     def get_freq_offset(self):
         return self.freq_offset

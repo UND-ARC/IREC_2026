@@ -120,6 +120,27 @@ blocks:
     coordinate: [24, 488.0]
     rotation: 0
     state: enabled
+- name: gain
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: rx gain
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: int
+    start: '0'
+    step: '1'
+    stop: '50'
+    value: '20'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 648.0]
+    rotation: 0
+    state: enabled
 - name: nfilts
   id: variable
   parameters:
@@ -754,9 +775,9 @@ blocks:
     fpass: '0'
     frequency: '915000000'
     fstop: '0'
-    gain1: '''manual'''
+    gain1: '''slow_attack'''
     len_tag_key: packet_len
-    manual_gain1: '10'
+    manual_gain1: gain
     maxoutbuf: '0'
     minoutbuf: '0'
     quadrature: 'True'

@@ -3,7 +3,10 @@ pass: ARC
 
 #on pi
 cd Github/IREC_2026/Avionics/
-pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps 
+pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps
+
+#make script executable
+chmod +x start_avionics.sh
 
 #this first
 python TX_GNU_radio.py

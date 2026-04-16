@@ -1,0 +1,25 @@
+#sudo nano /etc/systemd/system/avionics.service
+[Unit]
+Description=IREC Avionics Flight Software
+# Ensures the network is up before starting, since you stream over UDP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jacob
+WorkingDirectory=/home/jacob/irec_2026/Avionics
+
+# Execute the wrapper script
+ExecStart=/bin/bash /home/jacob/irec_2026/Avionics/start_avionics.sh
+
+# Route both standard output (prints) and errors to your log file
+StandardOutput=append:/home/jacob/irec_2026/Avionics/flight_log.txt
+StandardError=append:/home/jacob/irec_2026/Avionics/flight_log.txt
+
+# Automatically restart if the scripts crash
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
