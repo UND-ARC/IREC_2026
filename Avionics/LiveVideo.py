@@ -61,7 +61,8 @@ def main():
 
     try:
         if Constants.IS_FLIGHT_MODE:
-            udp_url = "udp://127.0.0.1:9000?pkt_size=1316"
+            # Change pkt_size to 188 and remove the muxrate options
+            udp_url = "udp://127.0.0.1:9000?pkt_size=188&flush_packets=1"
             videoOutput = PyavOutput(udp_url, format="mpegts")
 
             print("[*] FLIGHT MODE — streaming via PlutoSDR RF link")

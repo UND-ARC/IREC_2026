@@ -319,7 +319,10 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.digital_map_bb_0 = digital.map_bb([0,1,2,3])
         self.digital_linear_equalizer_0 = digital.linear_equalizer(15, 2, variable_adaptive_algorithm_0, True, [ ], 'corr_est')
         self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(4, digital.DIFF_DIFFERENTIAL)
+        self.digital_crc32_bb_0_0 = digital.crc32_bb(True, "frame", True)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, arity, False)
+        self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts('11011011001100001111011100000011',
+          1, 'frame')
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(qpsk)
         self._delay_range = qtgui.Range(0, 200, 1, 50, 200)
         self._delay_win = qtgui.RangeWidget(self._delay_range, self.set_delay, "Delay", "counter_slider", float, QtCore.Qt.Horizontal)
@@ -329,17 +332,19 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(2)
-        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "frame", False, gr.GR_MSB_FIRST)
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0_0, 0))
-        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_crc32_bb_0_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
+        self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
+        self.connect((self.digital_crc32_bb_0_0, 0), (self.network_udp_sink_0_0, 0))
         self.connect((self.digital_diff_decoder_bb_0, 0), (self.digital_map_bb_0, 0))
         self.connect((self.digital_linear_equalizer_0, 0), (self.digital_costas_loop_cc_0, 0))
         self.connect((self.digital_linear_equalizer_0, 0), (self.qtgui_const_sink_x_3, 0))

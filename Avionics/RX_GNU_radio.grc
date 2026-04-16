@@ -455,7 +455,7 @@ blocks:
     endianness: gr.GR_MSB_FIRST
     k: '1'
     l: '8'
-    len_tag_key: '"frame"'
+    len_tag_key: '""'
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
@@ -606,7 +606,7 @@ blocks:
     bus_structure: null
     coordinate: [424, 688.0]
     rotation: 0
-    state: bypassed
+    state: enabled
 - name: digital_costas_loop_cc_0
   id: digital_costas_loop_cc
   parameters:
@@ -642,7 +642,7 @@ blocks:
     bus_structure: null
     coordinate: [856, 672.0]
     rotation: 0
-    state: bypassed
+    state: enabled
 - name: digital_diff_decoder_bb_0
   id: digital_diff_decoder_bb
   parameters:

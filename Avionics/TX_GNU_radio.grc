@@ -108,7 +108,7 @@ blocks:
     len_tag_key: '"packet_len"'
     maxoutbuf: '0'
     minoutbuf: '0'
-    packet_len: '1316'
+    packet_len: '188'
     type: byte
     vlen: '1'
   states:
@@ -117,7 +117,7 @@ blocks:
     bus_structure: null
     coordinate: [280, 168.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -137,7 +137,7 @@ blocks:
     bus_structure: null
     coordinate: [784, 184.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: digital_constellation_modulator_0_0
   id: digital_constellation_modulator
   parameters:
@@ -177,7 +177,7 @@ blocks:
     bus_structure: null
     coordinate: [504, 160.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: digital_protocol_formatter_bb_0
   id: digital_protocol_formatter_bb
   parameters:
@@ -194,7 +194,7 @@ blocks:
     bus_structure: null
     coordinate: [712, 64.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: iio_pluto_sink_0
   id: iio_pluto_sink
   parameters:
@@ -232,7 +232,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     notify_missed: 'True'
-    payloadsize: '1316'
+    payloadsize: '188'
     port: '9000'
     src_zeros: 'False'
     type: byte
@@ -253,7 +253,6 @@ connections:
 - [digital_crc32_bb_0, '0', digital_protocol_formatter_bb_0, '0']
 - [digital_protocol_formatter_bb_0, '0', blocks_tagged_stream_mux_0, '0']
 - [network_udp_source_0, '0', blocks_stream_to_tagged_stream_0, '0']
-- [network_udp_source_0, '0', digital_constellation_modulator_0_0, '0']
 
 metadata:
   file_format: 1
