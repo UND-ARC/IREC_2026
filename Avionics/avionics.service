@@ -7,7 +7,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=jacob
+User=arc
 WorkingDirectory=/home/arc/Github/IREC_2026/Avionics
 
 # Execute the wrapper script
