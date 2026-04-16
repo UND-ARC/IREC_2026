@@ -24,38 +24,69 @@ def apply_overlay(request):
         return
 
     data = get_telemetry()
-    # time.strftime dynamically fetches the current Hour:Min:Sec for every single frame
-    ov_text = (f"ALT:{data['alt']}ft | GPS:{data['gps']} | "
-               f"{Constants.MODE_STR} | {time.strftime('%H:%M:%S')}")
 
-    # Iterate through both high-res ("main") and low-res ("lores") streams
+    # Split the data into multiple lines for a compact corner box
+    lines = [
+        f"ALT: {data['alt']} ft",
+        f"GPS: {data['gps']}",
+        f"MODE: {Constants.MODE_STR}",
+        f"T: {time.strftime('%H:%M:%S')}"
+    ]
+
     for stream_name in ["main", "lores"]:
         try:
             with MappedArray(request, stream_name) as m:
-                # Dynamically fetch the height (h) and width (w) of the current stream
                 h, w = m.array.shape[:2]
 
-                # Scale the black bar and font relative to the dynamic height
-                banner_h = max(30, int(h * 0.08))  # 8% of the frame height, minimum 30px
-                font_scale = max(0.4, h / 720.0)  # Scale font relative to a 720p baseline
+                # 1. Scale font dynamically based on frame height
+                font_scale = max(0.4, h / 900.0)
                 font_thick = max(1, int(2 * font_scale))
+                font = cv2.FONT_HERSHEY_SIMPLEX
 
-                # Draw the black background bar across the bottom
-                m.array[h - banner_h:h, :] = 0
+                # 2. Calculate the exact dimensions of the text block
+                max_text_w = 0
+                total_text_h = 0
+                line_spacing = int(8 * font_scale)  # Space between lines
+                text_metrics = []
 
-                # Calculate text placement so it aligns nicely within the banner
-                text_x = max(10, int(w * 0.02))
-                text_y = int(h - (banner_h * 0.3))
+                for line in lines:
+                    # getTextSize returns the width/height of the string in pixels
+                    (text_w, text_h), baseline = cv2.getTextSize(line, font, font_scale, font_thick)
+                    max_text_w = max(max_text_w, text_w)
+                    total_text_h += text_h + baseline + line_spacing
+                    text_metrics.append((text_w, text_h, baseline))
 
-                # Burn the text into the frame buffer
-                cv2.putText(
-                    m.array[:h], ov_text, (text_x, text_y),
-                    cv2.FONT_HERSHEY_SIMPLEX, font_scale, 255, font_thick, cv2.LINE_AA
-                )
+                # 3. Define the High-Contrast Bounding Box
+                padding = int(15 * font_scale)
+                box_w = max_text_w + (padding * 2)
+                box_h = total_text_h + (padding * 2)
+
+                # Position the box in the bottom-right corner (with a small margin from the absolute edge)
+                margin = int(10 * font_scale)
+                box_x1 = w - box_w - margin
+                box_y1 = h - box_h - margin
+                box_x2 = w - margin
+                box_y2 = h - margin
+
+                # 4. Draw the stark black background box
+                # Writing 0 to the Y-plane (luma) creates pure black
+                cv2.rectangle(m.array[:h], (box_x1, box_y1), (box_x2, box_y2), 0, cv2.FILLED)
+
+                # 5. Draw the pure white text line by line
+                current_y = box_y1 + padding
+                for i, line in enumerate(lines):
+                    text_w, text_h, baseline = text_metrics[i]
+                    current_y += text_h  # Move pen down to the baseline of the current text
+
+                    # Writing 255 to the Y-plane creates pure white text
+                    cv2.putText(
+                        m.array[:h], line, (box_x1 + padding, current_y),
+                        font, font_scale, 255, font_thick, cv2.LINE_AA
+                    )
+                    current_y += baseline + line_spacing  # Advance pen for the next line
+
         except KeyError:
-            # If the camera request doesn't include one of the streams for this specific frame, skip gracefully
             pass
-
 
 def main():
     picam2 = Picamera2()
