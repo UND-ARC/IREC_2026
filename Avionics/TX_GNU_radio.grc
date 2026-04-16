@@ -91,7 +91,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '1_500_000'
+    value: '2_000_000'
   states:
     bus_sink: false
     bus_source: false

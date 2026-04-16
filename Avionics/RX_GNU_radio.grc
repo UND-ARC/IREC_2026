@@ -210,7 +210,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '1500000'
+    value: '2000000'
   states:
     bus_sink: false
     bus_source: false
@@ -312,7 +312,7 @@ blocks:
     cons: qpsk
     delta: '10.0'
     ffactor: '0.99'
-    modulus: '4'
+    modulus: sps
     step_size: '.0001'
     type: cma
   states:
@@ -691,7 +691,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     num_taps: '15'
-    sps: '2'
+    sps: sps
     training_sequence: '[ ]'
     training_start_tag: corr_est
   states:
@@ -1147,9 +1147,9 @@ blocks:
     grid: 'False'
     gui_hint: ''
     label: Relative Gain
-    label1: ''
+    label1: raw
     label10: ''''''
-    label2: ''''''
+    label2: after LPF and Squelch
     label3: ''''''
     label4: ''''''
     label5: ''''''
@@ -1188,7 +1188,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [528, 72.0]
+    coordinate: [512, 72.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0

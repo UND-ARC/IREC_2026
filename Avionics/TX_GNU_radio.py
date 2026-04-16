@@ -34,7 +34,7 @@ class TX_GNU_radio(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 1_500_000
+        self.samp_rate = samp_rate = 2_000_000
         self.qpsk = qpsk = digital.constellation_rect([0.707+0.707j, -0.707+0.707j, -0.707-0.707j, 0.707-0.707j], [0, 1, 2, 3],
         4, 2, 2, 1, 1).base()
         self.header_format_default = header_format_default = digital.header_format_default('11011011001100001111011100000011',3, 2)
