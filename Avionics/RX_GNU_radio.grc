@@ -336,9 +336,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [536, 176.0]
+    coordinate: [544, 168.0]
     rotation: 0
-    state: bypassed
+    state: enabled
 - name: blocks_char_to_float_0
   id: blocks_char_to_float
   parameters:
@@ -803,7 +803,7 @@ blocks:
     alias: ''
     comment: ''
     header: '0'
-    payloadsize: '1472'
+    payloadsize: '1316'
     port: '10001'
     send_eof: 'False'
     type: byte

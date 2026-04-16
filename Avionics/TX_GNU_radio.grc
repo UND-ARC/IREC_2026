@@ -232,7 +232,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     notify_missed: 'True'
-    payloadsize: '188'
+    payloadsize: '1316'
     port: '9000'
     src_zeros: 'False'
     type: byte
