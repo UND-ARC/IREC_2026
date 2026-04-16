@@ -455,7 +455,7 @@ blocks:
     endianness: gr.GR_MSB_FIRST
     k: '1'
     l: '8'
-    len_tag_key: '""'
+    len_tag_key: '"frame"'
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
@@ -598,7 +598,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     tagname: frame
-    threshold: '1'
+    threshold: '3'
     type: byte
   states:
     bus_sink: false
@@ -803,7 +803,7 @@ blocks:
     alias: ''
     comment: ''
     header: '0'
-    payloadsize: '1316'
+    payloadsize: '1416'
     port: '10001'
     send_eof: 'False'
     type: byte
