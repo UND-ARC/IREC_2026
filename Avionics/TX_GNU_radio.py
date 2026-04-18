@@ -51,7 +51,7 @@ class TX_GNU_radio(gr.top_block):
         self.iio_pluto_sink_0.set_bandwidth(20000000)
         self.iio_pluto_sink_0.set_frequency(915000000)
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
-        self.iio_pluto_sink_0.set_attenuation(0, 30)
+        self.iio_pluto_sink_0.set_attenuation(0, 20)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
         self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(header_format_default, "packet_len")
         self.digital_crc32_bb_0 = digital.crc32_bb(False, "packet_len", True)

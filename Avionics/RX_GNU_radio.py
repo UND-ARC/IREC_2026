@@ -84,6 +84,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.freq_offset = freq_offset = 0
         self.excess_bw = excess_bw = 0.35
         self.eq_gain = eq_gain = 0.001
+        self.enable_video = enable_video = False
         self.delay = delay = 50
         self.arity = arity = 4
 
@@ -143,6 +144,13 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self._gain_range = qtgui.Range(0, 50, 1, 20, 200)
         self._gain_win = qtgui.RangeWidget(self._gain_range, self.set_gain, "rx gain", "counter_slider", int, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._gain_win)
+        _enable_video_check_box = Qt.QCheckBox("enable_video")
+        self._enable_video_choices = {True: True, False: False}
+        self._enable_video_choices_inv = dict((v,k) for k,v in self._enable_video_choices.items())
+        self._enable_video_callback = lambda i: Qt.QMetaObject.invokeMethod(_enable_video_check_box, "setChecked", Qt.Q_ARG("bool", self._enable_video_choices_inv[i]))
+        self._enable_video_callback(self.enable_video)
+        _enable_video_check_box.stateChanged.connect(lambda i: self.set_enable_video(self._enable_video_choices[bool(i)]))
+        self.top_layout.addWidget(_enable_video_check_box)
         self._time_offset_range = qtgui.Range(0.999, 1.001, 0.0001, 1.00, 200)
         self._time_offset_win = qtgui.RangeWidget(self._time_offset_range, self.set_time_offset, "Timing Offset", "counter_slider", float, QtCore.Qt.Horizontal)
         self.controls_grid_layout_0.addWidget(self._time_offset_win, 0, 2, 1, 1)
@@ -337,6 +345,8 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(2)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "frame", False, gr.GR_MSB_FIRST)
+        self.blocks_copy_0 = blocks.copy(gr.sizeof_char*1)
+        self.blocks_copy_0.set_enabled(enable_video)
         self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 0.5)
 
 
@@ -345,8 +355,9 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.analog_simple_squelch_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.analog_simple_squelch_cc_0, 0), (self.qtgui_freq_sink_x_0, 1))
+        self.connect((self.blocks_copy_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_crc32_bb_0_0, 0))
-        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_copy_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
         self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
@@ -476,6 +487,14 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
     def set_eq_gain(self, eq_gain):
         self.eq_gain = eq_gain
+
+    def get_enable_video(self):
+        return self.enable_video
+
+    def set_enable_video(self, enable_video):
+        self.enable_video = enable_video
+        self._enable_video_callback(self.enable_video)
+        self.blocks_copy_0.set_enabled(self.enable_video)
 
     def get_delay(self):
         return self.delay

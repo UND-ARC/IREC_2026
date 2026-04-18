@@ -66,6 +66,23 @@ blocks:
     coordinate: [760, 488.0]
     rotation: 0
     state: enabled
+- name: enable_video
+  id: variable_qtgui_check_box
+  parameters:
+    comment: ''
+    'false': 'False'
+    gui_hint: ''
+    label: enable_video
+    'true': 'True'
+    type: bool
+    value: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 624.0]
+    rotation: 0
+    state: enabled
 - name: eq_gain
   id: variable_qtgui_range
   parameters:
@@ -138,7 +155,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 648.0]
+    coordinate: [56, 640.0]
     rotation: 0
     state: enabled
 - name: nfilts
@@ -428,6 +445,25 @@ blocks:
     coordinate: [1096, 704.0]
     rotation: 0
     state: disabled
+- name: blocks_copy_0
+  id: blocks_copy
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    enabled: enable_video
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    showports: 'False'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [552.0, 512]
+    rotation: 270
+    state: enabled
 - name: blocks_delay_0
   id: blocks_delay
   parameters:
@@ -609,6 +645,25 @@ blocks:
     coordinate: [792, 240.0]
     rotation: 180
     state: true
+- name: digital_correlate_access_code_tag_xx_0
+  id: digital_correlate_access_code_tag_xx
+  parameters:
+    access_code: '11011011001100001111011100000011'
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    tagname: ''
+    threshold: '3'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [472, 800.0]
+    rotation: 0
+    state: disabled
 - name: digital_correlate_access_code_xx_ts_0
   id: digital_correlate_access_code_xx_ts
   parameters:
@@ -1514,7 +1569,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [440, 520.0]
+    coordinate: [416, 520.0]
     rotation: 0
     state: enabled
 
@@ -1525,15 +1580,18 @@ connections:
 - [blocks_char_to_float_0_0, '0', qtgui_time_sink_x_0_0, '0']
 - [blocks_char_to_float_0_0_0, '0', blocks_delay_0, '0']
 - [blocks_char_to_float_0_0_1, '0', qtgui_time_sink_x_1, '0']
+- [blocks_copy_0, '0', digital_correlate_access_code_xx_ts_0, '0']
 - [blocks_delay_0, '0', qtgui_time_sink_x_0_0, '1']
 - [blocks_repack_bits_bb_0, '0', digital_crc32_bb_0_0, '0']
 - [blocks_throttle2_0, '0', network_udp_sink_0_0, '0']
 - [blocks_unpack_k_bits_bb_0, '0', blocks_char_to_float_0_0, '0']
-- [blocks_unpack_k_bits_bb_0, '0', digital_correlate_access_code_xx_ts_0, '0']
+- [blocks_unpack_k_bits_bb_0, '0', blocks_copy_0, '0']
+- [blocks_unpack_k_bits_bb_0, '0', digital_correlate_access_code_tag_xx_0, '0']
 - [blocks_unpack_k_bits_bb_0_0, '0', blocks_char_to_float_0_0_0, '0']
 - [blocks_vector_source_x_0, '0', blocks_unpack_k_bits_bb_0_0, '0']
 - [digital_constellation_decoder_cb_0, '0', blocks_char_to_float_0, '0']
 - [digital_constellation_decoder_cb_0, '0', digital_diff_decoder_bb_0, '0']
+- [digital_correlate_access_code_tag_xx_0, '0', blocks_throttle2_0, '0']
 - [digital_correlate_access_code_xx_ts_0, '0', blocks_repack_bits_bb_0, '0']
 - [digital_costas_loop_cc_0, '0', digital_constellation_decoder_cb_0, '0']
 - [digital_costas_loop_cc_0, '0', qtgui_const_sink_x_0, '0']

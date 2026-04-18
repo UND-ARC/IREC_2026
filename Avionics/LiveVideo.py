@@ -27,6 +27,7 @@ def apply_overlay(request):
 
     # Split the data into multiple lines for a compact corner box
     lines = [
+        f"CALL: {Constants.CALLSIGN}",
         f"ALT: {data['alt']} ft",
         f"GPS: {data['gps']}",
         f"MODE: {Constants.MODE_STR}",
