@@ -124,11 +124,6 @@ def main(top_block_cls=TX_GNU_radio, options=None):
     tb.start()
     tb.flowgraph_started.set()
 
-    try:
-        input('Press Enter to quit: ')
-    except EOFError:
-        pass
-    tb.stop()
     tb.wait()
 
 
