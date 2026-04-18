@@ -3,6 +3,7 @@ pass: ARC
 
 #on pi
 cd Github/IREC_2026/Avionics/
+sudo apt-get install python3-pip python3-serial
 pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps
 
 #make script executable
