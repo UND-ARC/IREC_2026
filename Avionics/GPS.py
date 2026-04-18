@@ -14,14 +14,19 @@ import time
 import board
 import busio
 import adafruit_gps
+import serial
 
 #UART connection
-uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=10)
+#uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=10)
+# On Pi 5, /dev/ttyAMA0 is the default hardware UART
+uart = serial.Serial("/dev/ttyAMA0", baudrate=9600, timeout=10)
 gps = adafruit_gps.GPS(uart, debug=False)
 
-# Enable NMEA sentences
-gps.send_command(b'PMTK314,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0*28')
-gps.send_command(b'PMTK220,1000') # 1Hz update rate
+# Initialize the GPS module by sending commands
+# Turn on basic GGA and RMC info
+gps.send_command(b'PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0')
+# Set update rate to 1000ms (1Hz)
+gps.send_command(b'PMTK220,1000')
 
 while True:
     gps.update()
