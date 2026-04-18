@@ -52,7 +52,7 @@ class GPSController:
         return {
             "lat": self.gps.latitude,
             "lon": self.gps.longitude,
-            "alt": self.gps.altitude_m,
+            "alt": f"{self.gps.altitude_m} m",
             "sats": self.gps.satellites,
             "speed_kn": self.gps.speed_knots,
             "timestamp": self.gps.timestamp_utc

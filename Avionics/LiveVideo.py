@@ -9,14 +9,18 @@ from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
 from picamera2.outputs import PyavOutput
 import Constants
+from GPS import GPSController
 
-
-
-
-
+#start gps
+gps = GPSController()
 def get_telemetry():
     """Simulated data — replace with real sensor reads for flight"""
-    return {"alt": 0, "gps": "32.9904 N, 106.9750 W"}
+
+    if gps.has_fix:
+        pos = gps.get_position()
+        return {"alt": pos['alt'], "gps": f"{pos['lat']:.6f}, {pos['lon']:.6f}"}
+    else:
+        return {"alt": "waiting...", "gps": "waiting..."}
 
 
 def apply_overlay(request):
@@ -93,7 +97,10 @@ def apply_overlay(request):
         except KeyError:
             pass
 
+
 def main():
+
+
     picam2 = Picamera2()
 
     target_fps = 30
