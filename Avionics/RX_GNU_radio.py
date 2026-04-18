@@ -299,7 +299,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
         self.iio_pluto_source_0_0.set_frequency(915000000)
         self.iio_pluto_source_0_0.set_samplerate(samp_rate)
-        self.iio_pluto_source_0_0.set_gain_mode(0, 'slow_attack')
+        self.iio_pluto_source_0_0.set_gain_mode(0, 'manual')
         self.iio_pluto_source_0_0.set_gain(0, gain)
         self.iio_pluto_source_0_0.set_quadrature(True)
         self.iio_pluto_source_0_0.set_rfdc(True)

@@ -681,26 +681,6 @@ blocks:
     coordinate: [584, 248.0]
     rotation: 180
     state: enabled
-- name: digital_fll_band_edge_cc_0
-  id: digital_fll_band_edge_cc
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    filter_size: '44'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    rolloff: ''
-    samps_per_sym: sps
-    type: cc
-    w: '0.01'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1336, 96.0]
-    rotation: 0
-    state: disabled
 - name: digital_linear_equalizer_0
   id: digital_linear_equalizer
   parameters:
@@ -775,7 +755,7 @@ blocks:
     fpass: '0'
     frequency: '915000000'
     fstop: '0'
-    gain1: '''slow_attack'''
+    gain1: '''manual'''
     len_tag_key: packet_len
     manual_gain1: gain
     maxoutbuf: '0'
@@ -1036,7 +1016,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [904, 144.0]
+    coordinate: [928, 128.0]
     rotation: 0
     state: disabled
 - name: qtgui_const_sink_x_3
@@ -1561,9 +1541,7 @@ connections:
 - [digital_crc32_bb_0_0, '0', blocks_file_sink_0, '0']
 - [digital_crc32_bb_0_0, '0', blocks_throttle2_0, '0']
 - [digital_diff_decoder_bb_0, '0', digital_map_bb_0, '0']
-- [digital_fll_band_edge_cc_0, '0', digital_costas_loop_cc_0, '0']
 - [digital_linear_equalizer_0, '0', digital_costas_loop_cc_0, '0']
-- [digital_linear_equalizer_0, '0', digital_fll_band_edge_cc_0, '0']
 - [digital_linear_equalizer_0, '0', qtgui_const_sink_x_3, '0']
 - [digital_map_bb_0, '0', blocks_unpack_k_bits_bb_0, '0']
 - [digital_pfb_clock_sync_xxx_0, '0', digital_linear_equalizer_0, '0']

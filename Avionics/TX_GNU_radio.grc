@@ -115,7 +115,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 168.0]
+    coordinate: [240, 144.0]
     rotation: 0
     state: enabled
 - name: blocks_tagged_stream_mux_0
@@ -135,7 +135,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [784, 184.0]
+    coordinate: [704, 280.0]
     rotation: 0
     state: enabled
 - name: digital_constellation_modulator_0_0
@@ -157,7 +157,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 304.0]
+    coordinate: [872, 112.0]
     rotation: 0
     state: true
 - name: digital_crc32_bb_0
@@ -175,7 +175,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 160.0]
+    coordinate: [464, 136.0]
     rotation: 0
     state: enabled
 - name: digital_protocol_formatter_bb_0
@@ -192,7 +192,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [712, 64.0]
+    coordinate: [472, 352.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_sink_0
@@ -200,7 +200,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    attenuation1: '20'
+    attenuation1: '5'
     bandwidth: '20000000'
     buffer_size: '131072'
     comment: ''
@@ -218,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1104, 188.0]
+    coordinate: [1112, 76.0]
     rotation: 0
     state: enabled
 - name: network_udp_source_0
