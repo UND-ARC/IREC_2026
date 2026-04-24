@@ -4,7 +4,7 @@ pass: ARC
 #on pi
 cd Github/IREC_2026/Avionics/
 sudo apt-get install python3-pip python3-serial
-pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps
+pip install opencv-python numpy picamera2 pyadi-iio adafruit-circuitpython-gps adafruit-circuitpython-bme680 adafruit-circuitpython-bno055
 
 #make script executable
 chmod +x start_avionics.sh
@@ -24,6 +24,7 @@ ffmpeg -framerate 120 -i Flight_HD_20260416_143000.h264 -c copy Output_Video.mp4
 ffplay -i tcp://0.0.0.0:10001?listen -fflags nobuffer+genpts -flags low_delay -framedrop -vf setpts=0 2>/dev/null
 
 #for flight mode
+ip link show # to find the enp.... for the next command
 sudo ip addr add 192.168.4.100/24 dev enp199s0f4u1
 python RX_GNU_radio.py
 

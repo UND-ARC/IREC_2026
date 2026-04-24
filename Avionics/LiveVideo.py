@@ -10,17 +10,34 @@ from picamera2.outputs import FileOutput
 from picamera2.outputs import PyavOutput
 import Constants
 from GPS import GPSController
+from BME680Controller import BMEControllerI2C
+from IMUController import IMUController
 
 #start gps
 gps = GPSController()
+bme680 = BMEControllerI2C()
+bme680.calibrate_ground_level()
+imu = IMUController()
+
 def get_telemetry():
-    """Simulated data — replace with real sensor reads for flight"""
+    bme_data = bme680.get_data()
+    imu_orientation = imu.get_orientation()
+    out = {
+        "alt": bme_data["altitude"],
+        "pitch": imu_orientation["pitch"],
+        "yaw": imu_orientation["yaw"],
+        "roll": imu_orientation["roll"]
+    }
 
     if gps.has_fix:
         pos = gps.get_position()
-        return {"alt": pos['alt'], "gps": f"{pos['lat']:.6f}, {pos['lon']:.6f}"}
+
+        out["gps"] = f"{pos['lat']:.6f}, {pos['lon']:.6f}"
+
     else:
-        return {"alt": "waiting...", "gps": "waiting..."}
+        out["gps"] = "waiting..."
+
+    return out
 
 
 def apply_overlay(request):
@@ -32,8 +49,9 @@ def apply_overlay(request):
     # Split the data into multiple lines for a compact corner box
     lines = [
         f"CALL: {Constants.CALLSIGN}",
-        f"ALT: {data['alt']} ft",
+        f"ALT: {data['alt']}:.2f ft",
         f"GPS: {data['gps']}",
+        f"IMU: pitch:{data["pitch"]}, yaw:{data['yaw']}, roll:{data['roll']}",
         f"MODE: {Constants.MODE_STR}",
         f"T: {time.strftime('%H:%M:%S')}"
     ]
