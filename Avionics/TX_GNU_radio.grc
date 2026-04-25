@@ -175,7 +175,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [464, 136.0]
+    coordinate: [456, 136.0]
     rotation: 0
     state: enabled
 - name: digital_protocol_formatter_bb_0
@@ -192,7 +192,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [472, 352.0]
+    coordinate: [456, 360.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_sink_0

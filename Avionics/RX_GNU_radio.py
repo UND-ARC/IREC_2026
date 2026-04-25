@@ -73,17 +73,12 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.nfilts = nfilts = 32
         self.variable_adaptive_algorithm_0 = variable_adaptive_algorithm_0 = digital.adaptive_algorithm_cma( qpsk, .0001, sps).base()
         self.timing_loop_bw = timing_loop_bw = 6.28/50.0
-        self.time_offset = time_offset = 1.00
-        self.taps = taps = [1.0, 0.25-0.25j, 0.50 + 0.10j, -0.3 + 0.2j]
         self.squelch_threshold = squelch_threshold = -70
         self.samp_rate = samp_rate = 2_000_000
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts, 1.0/float(sps), 0.35, 11*sps*nfilts)
         self.phase_bw = phase_bw = 6.28/25.0
-        self.noise_volt = noise_volt = 0.0001
         self.gain = gain = 20
         self.freq_offset = freq_offset = 0
-        self.excess_bw = excess_bw = 0.35
-        self.eq_gain = eq_gain = 0.001
         self.enable_video = enable_video = False
         self.delay = delay = 50
         self.arity = arity = 4
@@ -151,13 +146,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self._enable_video_callback(self.enable_video)
         _enable_video_check_box.stateChanged.connect(lambda i: self.set_enable_video(self._enable_video_choices[bool(i)]))
         self.top_layout.addWidget(_enable_video_check_box)
-        self._time_offset_range = qtgui.Range(0.999, 1.001, 0.0001, 1.00, 200)
-        self._time_offset_win = qtgui.RangeWidget(self._time_offset_range, self.set_time_offset, "Timing Offset", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.controls_grid_layout_0.addWidget(self._time_offset_win, 0, 2, 1, 1)
-        for r in range(0, 1):
-            self.controls_grid_layout_0.setRowStretch(r, 1)
-        for c in range(2, 3):
-            self.controls_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -286,13 +274,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.received_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.received_grid_layout_0.setColumnStretch(c, 1)
-        self._noise_volt_range = qtgui.Range(0, 1, 0.01, 0.0001, 200)
-        self._noise_volt_win = qtgui.RangeWidget(self._noise_volt_range, self.set_noise_volt, "Noise Voltage", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.controls_grid_layout_0.addWidget(self._noise_volt_win, 0, 0, 1, 1)
-        for r in range(0, 1):
-            self.controls_grid_layout_0.setRowStretch(r, 1)
-        for c in range(0, 1):
-            self.controls_grid_layout_0.setColumnStretch(c, 1)
         self.network_udp_sink_0_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 10001, 0, 1416, False)
         self.low_pass_filter_0 = filter.fir_filter_ccf(
             1,
@@ -320,13 +301,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.controls_grid_layout_0.setRowStretch(r, 1)
         for c in range(1, 2):
             self.controls_grid_layout_0.setColumnStretch(c, 1)
-        self._eq_gain_range = qtgui.Range(0.0, 0.1, 0.001, 0.001, 200)
-        self._eq_gain_win = qtgui.RangeWidget(self._eq_gain_range, self.set_eq_gain, "Equalizer: rate", "slider", float, QtCore.Qt.Horizontal)
-        self.controls_grid_layout_1.addWidget(self._eq_gain_win, 0, 1, 1, 1)
-        for r in range(0, 1):
-            self.controls_grid_layout_1.setRowStretch(r, 1)
-        for c in range(1, 2):
-            self.controls_grid_layout_1.setColumnStretch(c, 1)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, timing_loop_bw, rrc_taps, nfilts, (nfilts/2), 1.5, 2)
         self.digital_map_bb_0 = digital.map_bb([0,1,2,3])
         self.digital_linear_equalizer_0 = digital.linear_equalizer(15, 2, variable_adaptive_algorithm_0, True, [ ], 'corr_est')
@@ -345,6 +319,8 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(2)
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "frame", False, gr.GR_MSB_FIRST)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/jacob/Downloads/out.ts', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_copy_0 = blocks.copy(gr.sizeof_char*1)
         self.blocks_copy_0.set_enabled(enable_video)
         self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(squelch_threshold, 0.5)
@@ -362,6 +338,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
+        self.connect((self.digital_crc32_bb_0_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.digital_crc32_bb_0_0, 0), (self.network_udp_sink_0_0, 0))
         self.connect((self.digital_diff_decoder_bb_0, 0), (self.digital_map_bb_0, 0))
         self.connect((self.digital_linear_equalizer_0, 0), (self.digital_costas_loop_cc_0, 0))
@@ -415,18 +392,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.timing_loop_bw = timing_loop_bw
         self.digital_pfb_clock_sync_xxx_0.set_loop_bandwidth(self.timing_loop_bw)
 
-    def get_time_offset(self):
-        return self.time_offset
-
-    def set_time_offset(self, time_offset):
-        self.time_offset = time_offset
-
-    def get_taps(self):
-        return self.taps
-
-    def set_taps(self, taps):
-        self.taps = taps
-
     def get_squelch_threshold(self):
         return self.squelch_threshold
 
@@ -457,12 +422,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.phase_bw = phase_bw
         self.digital_costas_loop_cc_0.set_loop_bandwidth(self.phase_bw)
 
-    def get_noise_volt(self):
-        return self.noise_volt
-
-    def set_noise_volt(self, noise_volt):
-        self.noise_volt = noise_volt
-
     def get_gain(self):
         return self.gain
 
@@ -475,18 +434,6 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
 
     def set_freq_offset(self, freq_offset):
         self.freq_offset = freq_offset
-
-    def get_excess_bw(self):
-        return self.excess_bw
-
-    def set_excess_bw(self, excess_bw):
-        self.excess_bw = excess_bw
-
-    def get_eq_gain(self):
-        return self.eq_gain
-
-    def set_eq_gain(self, eq_gain):
-        self.eq_gain = eq_gain
 
     def get_enable_video(self):
         return self.enable_video
