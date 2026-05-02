@@ -4,6 +4,8 @@ Pluto_Ground_Hostname = "ip:pluto-ground.local"
 Pluto_Pi_IP = "192.168.3.1"
 Pluto_Pi_Hostname = "ip:pluto-pi.local"
 
+Pi_Hostname = "ARC-PI5-IREC"
+
 Laptop_IP = "10.42.0.1"
 Laptop_Port = 10001
 

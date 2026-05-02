@@ -54,7 +54,7 @@ class GPSController:
             "lon": self.gps.longitude,
             "alt": f"{self.gps.altitude_m} m",
             "sats": self.gps.satellites,
-            "speed_kn": self.gps.speed_knots,
+            "speed_fps": self.gps.speed_knots*1.687811,
             "timestamp": self.gps.timestamp_utc
         }
 

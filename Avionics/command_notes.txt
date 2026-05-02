@@ -25,7 +25,7 @@ ffplay -i tcp://0.0.0.0:10001?listen -fflags nobuffer+genpts -flags low_delay -f
 
 #for flight mode
 ip link show # to find the enp.... for the next command
-sudo ip addr add 192.168.4.100/24 dev enp199s0f4u1
+sudo ip addr add 192.168.4.100/24 dev enp199s0f4u1    #use sudo ip addr add 10.42.0.1/24 dev eth0 for pi ssh
 python RX_GNU_radio.py
 
 

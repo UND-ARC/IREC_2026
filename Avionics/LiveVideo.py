@@ -26,16 +26,18 @@ def get_telemetry():
         "alt": bme_data["altitude"],
         "pitch": imu_orientation["pitch"],
         "yaw": imu_orientation["yaw"],
-        "roll": imu_orientation["roll"]
+        "roll": imu_orientation["roll"],
     }
 
     if gps.has_fix:
         pos = gps.get_position()
 
-        out["gps"] = f"{pos['lat']:.6f}, {pos['lon']:.6f}"
+        out["gps"] = f"{pos['lat']:.6f}, {pos['lon']:.6f}, {pos['sats']}"
+        out["vel"] = f"{pos['speed_fps']:.2f} ft/s"
 
     else:
         out["gps"] = "waiting..."
+        out["vel"] = "waiting..."
 
     return out
 
@@ -51,6 +53,7 @@ def apply_overlay(request):
         f"CALL: {Constants.CALLSIGN}",
         f"ALT: {data['alt']:.2f} ft",
         f"GPS: {data['gps']}",
+        f"SPEED: {data['vel']}",
         f"IMU: pitch:{data["pitch"]}, yaw:{data['yaw']}, roll:{data['roll']}",
         f"MODE: {Constants.MODE_STR}",
         f"T: {time.strftime('%H:%M:%S')}"

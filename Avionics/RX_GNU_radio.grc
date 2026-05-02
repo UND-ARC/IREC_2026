@@ -557,7 +557,7 @@ blocks:
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: '915000000'
+    frequency: '1_250_000_000'
     fstop: '0'
     gain1: '''manual'''
     len_tag_key: packet_len
