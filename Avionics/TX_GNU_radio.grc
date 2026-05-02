@@ -33,26 +33,6 @@ options:
     state: enabled
 
 blocks:
-- name: constellation_obj
-  id: variable_constellation_rect
-  parameters:
-    comment: ''
-    const_points: '[1+1j, -1+1j, -1-1j, 1-1j]'
-    imag_sect: '2'
-    precision: '8'
-    real_sect: '2'
-    rot_sym: '4'
-    soft_dec_lut: None
-    sym_map: '[0, 1, 2, 3]'
-    w_imag_sect: '1'
-    w_real_sect: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [264, 380.0]
-    rotation: 0
-    state: enabled
 - name: header_format_default
   id: variable_header_format_default
   parameters:
@@ -200,7 +180,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    attenuation1: '20'
+    attenuation1: '15'
     bandwidth: '20000000'
     buffer_size: '131072'
     comment: ''
