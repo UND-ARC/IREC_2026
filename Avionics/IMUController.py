@@ -6,10 +6,29 @@ import adafruit_bno055
 class IMUController:
     def __init__(self):
         self.i2c = board.I2C()
-        self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
+        self.sensor = None
+        try:
+            self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
+        except Exception as e:
+            print(e)
 
     def get_orientation(self):
         """Returns Euler angles and Quaternions."""
+        if self.sensor is None:
+            try:
+                self.sensor = adafruit_bno055.BNO055_I2C(self.i2c)
+            except Exception as e:
+                print(e)
+
+        if self.sensor is None:
+            return {
+                "yaw": 0.0,  # 0-360 degrees
+                "roll": 0.0,
+                "pitch": 0.0,
+                "quat": 0.0,  # (x, y, z, w)
+                "cal": 0.0  # (sys, gyro, accel, mag)
+            }
+
         return {
             "yaw": self.sensor.euler[0],  # 0-360 degrees
             "roll": self.sensor.euler[1],

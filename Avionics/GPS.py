@@ -22,6 +22,7 @@ class GPSController:
         #uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=10)
         # On Pi 5, /dev/ttyAMA0 is the default hardware UART
         self.uart = serial.Serial("/dev/ttyAMA0", baudrate=9600, timeout=10)
+
         self.gps = adafruit_gps.GPS(self.uart, debug=False)
 
         # Initialize the GPS module by sending commands

@@ -9,15 +9,35 @@ class BMEControllerI2C:
     def __init__(self, sea_level_pressure=1013.25):
         # Create I2C bus
         self.i2c = board.I2C()
-
+        self.sea_level_pressure = sea_level_pressure
         # Initialize sensor
         # If you wired SDO to GND, add address=0x76 inside the parentheses
-        self.sensor = adafruit_bme680.Adafruit_BME680_I2C(self.i2c)
+        self.sensor = None
+        try:
+            self.sensor = adafruit_bme680.Adafruit_BME680_I2C(self.i2c)
 
-        self.sensor.sea_level_pressure = sea_level_pressure
+            self.sensor.sea_level_pressure = sea_level_pressure
+        except Exception as e:
+            print(e)
 
     def get_data(self):
         """Returns a dictionary of all sensor readings."""
+        if self.sensor is None:
+            try:
+                self.sensor = adafruit_bme680.Adafruit_BME680_I2C(self.i2c)
+
+                self.sensor.sea_level_pressure = self.sea_level_pressure
+            except Exception as e:
+                print(e)
+
+        if self.sensor is None:
+            return {
+            "temperature": 0.0,
+            "pressure": 0.0,
+            "altitude": 0.0,
+            "humidity": 0.0,
+            "gas": 0.0
+        }
         return {
             "temperature": self.sensor.temperature,
             "pressure": self.sensor.pressure,
@@ -28,11 +48,14 @@ class BMEControllerI2C:
 
     def calibrate_ground_level(self):
         """Sets the current pressure as the 0-meter reference."""
-        print("Calibrating ground level...")
-        readings = [self.sensor.pressure for _ in range(20)]
-        self.sea_level_pressure = sum(readings) / len(readings)
-        self.sensor.sea_level_pressure = self.sea_level_pressure
-        print(f"Ground reference set to {self.sea_level_pressure:.2f} hPa")
+        try:
+            print("Calibrating ground level...")
+            readings = [self.sensor.pressure for _ in range(20)]
+            self.sea_level_pressure = sum(readings) / len(readings)
+            self.sensor.sea_level_pressure = self.sea_level_pressure
+            print(f"Ground reference set to {self.sea_level_pressure:.2f} hPa")
+        except Exception as e:
+            print(e)
 
 
 # --- Example Usage ---
