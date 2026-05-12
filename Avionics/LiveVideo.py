@@ -58,7 +58,7 @@ def apply_overlay(request):
 
     accel_mag = math.sqrt(data["accel"][0] ** 2 + data["accel"][1] ** 2 + data["accel"][2] ** 2)
     #update flight status
-    if abs(accel_mag/9.81) > 2.0 and status == "Waiting for liftoff":
+    if abs(accel_mag/9.81) > 1.5 and status == "Waiting for liftoff":
         status = "Liftoff"
     
     if abs(accel_mag/9.81) < 0.5 and status == "Liftoff":
@@ -71,8 +71,8 @@ def apply_overlay(request):
         f"ALT: {data['alt']:.2f} ft",
         f"GPS: {data['gps']}",
         f"SPEED: {data['vel']}",
-        f"IMU: pitch:{data["pitch"]:.1f}, yaw:{data['yaw']:.1f}, roll:{data['roll']:.1f}",
-        f"Accel: X:{data['accel'][0]:6.2f}, Y:{data['accel'][1]:6.2f}, Z:{data['accel'][2]:6.2f} m/s^2",
+        f"IMU: pitch:{data["roll"]:.1f}, yaw:{data['yaw']:.1f}, roll:{data['pitch']:.1f}",
+        f"Accel: X:{data['accel'][2]:6.2f}, Y:{data['accel'][1]:6.2f}, Z:{data['accel'][0]:6.2f} m/s^2",
         f"Accel in G's X:{data['accel'][0]/9.81:6.2f}, Y:{data['accel'][1]/9.81:6.2f}, Z:{data['accel'][2]/9.81:6.2f}",
         f"STATUS: {status}",
         f"T: {time.strftime('%H:%M:%S')}"
