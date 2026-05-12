@@ -72,8 +72,8 @@ def apply_overlay(request):
         f"GPS: {data['gps']}",
         f"SPEED: {data['vel']}",
         f"IMU: pitch:{data["pitch"]:.1f}, yaw:{data['yaw']:.1f}, roll:{data['roll']:.1f}",
-        f"Accel: X:{data['accel'][0]:.2f}, Y:{data['accel'][1]:.2f}, Z:{data['accel'][2]:.2f} m/s^2",
-        f"Accel in G's X:{data['accel'][0]*9.81:.2f}, Y:{data['accel'][1]*9.81:.2f}, Z:{data['accel'][2]*9.81:.2f}"
+        f"Accel: X:{data['accel'][0]:5.2f}, Y:{data['accel'][1]:5.2f}, Z:{data['accel'][2]:5.2f} m/s^2",
+        f"Accel in G's X:{data['accel'][0]*9.81:5.2f}, Y:{data['accel'][1]*9.81:5.2f}, Z:{data['accel'][2]*9.81:5.2f}",
         f"STATUS: {status}",
         f"T: {time.strftime('%H:%M:%S')}"
     ]
