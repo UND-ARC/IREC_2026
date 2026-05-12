@@ -33,6 +33,7 @@ class IMUController:
             "yaw": self.sensor.euler[0],  # 0-360 degrees
             "roll": self.sensor.euler[1],
             "pitch": self.sensor.euler[2],
+            "accel": self.sensor.acceleration,
             "quat": self.sensor.quaternion,  # (x, y, z, w)
             "cal": self.sensor.calibration_status  # (sys, gyro, accel, mag)
         }

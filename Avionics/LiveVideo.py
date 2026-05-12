@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 import socket
 import time
@@ -27,6 +28,7 @@ def get_telemetry():
         "pitch": imu_orientation["pitch"],
         "yaw": imu_orientation["yaw"],
         "roll": imu_orientation["roll"],
+        "accel": imu_orientation["accel"],
     }
 
     if gps.has_fix:
@@ -42,11 +44,25 @@ def get_telemetry():
     return out
 
 
+status = "Waiting for liftoff"
+
+
+
+
 def apply_overlay(request):
     if not Constants.USE_OVERLAY:
         return
 
+    global status
     data = get_telemetry()
+    '''
+    #update flight status
+    if data["accel"]*9.81 > 2.0 and status == "Waiting for liftoff":
+        status = "Liftoff"
+    
+    if math.abs(data["accel"]*9.81) < 0.5 and status == "Liftoff":
+        status = "Zero G"
+    '''
 
     # Split the data into multiple lines for a compact corner box
     lines = [
@@ -54,8 +70,9 @@ def apply_overlay(request):
         f"ALT: {data['alt']:.2f} ft",
         f"GPS: {data['gps']}",
         f"SPEED: {data['vel']}",
-        f"IMU: pitch:{data["pitch"]}, yaw:{data['yaw']}, roll:{data['roll']}",
-        f"MODE: {Constants.MODE_STR}",
+        f"IMU: pitch:{data["pitch"]:.1f}, yaw:{data['yaw']:.1f}, roll:{data['roll']:.1f}",
+        f"Accel: {data['accel']} m/s^2",
+        f"STATUS: {status}",
         f"T: {time.strftime('%H:%M:%S')}"
     ]
 
