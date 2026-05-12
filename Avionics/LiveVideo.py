@@ -58,11 +58,17 @@ def apply_overlay(request):
 
     accel_mag = math.sqrt(data["accel"][0] ** 2 + data["accel"][1] ** 2 + data["accel"][2] ** 2)
     #update flight status
-    if abs(accel_mag/9.81) > 1.5 and status == "Waiting for liftoff":
+    if abs(accel_mag/9.81) > 7.0 and status == "Waiting for liftoff":
         status = "Liftoff"
     
     if abs(accel_mag/9.81) < 0.5 and status == "Liftoff":
         status = "Zero G"
+
+    if abs(accel_mag/9.81) > 0.7 and status == "Zero G":
+        status = "Descending under Parachute"
+
+    if abs(data["alt"]) < 500 and status == "Descending under Parachute":
+        status = "Landing"
 
 
     # Split the data into multiple lines for a compact corner box
