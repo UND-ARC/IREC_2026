@@ -58,7 +58,7 @@ def apply_overlay(request):
 
     accel_mag = math.sqrt(data["accel"][0] ** 2 + data["accel"][1] ** 2 + data["accel"][2] ** 2)
     #update flight status
-    if abs(accel_mag/9.81) > 7.0 and status == "Waiting for liftoff":
+    if abs(accel_mag/9.81) > 1.2 and status == "Waiting for liftoff":
         status = "Liftoff"
         launchTime = time.monotonic()
     
