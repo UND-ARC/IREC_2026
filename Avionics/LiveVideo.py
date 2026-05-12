@@ -45,7 +45,7 @@ def get_telemetry():
 
 
 status = "Waiting for liftoff"
-
+launchTime = time.monotonic()
 
 
 
@@ -60,6 +60,7 @@ def apply_overlay(request):
     #update flight status
     if abs(accel_mag/9.81) > 7.0 and status == "Waiting for liftoff":
         status = "Liftoff"
+        launchTime = time.monotonic()
     
     if abs(accel_mag/9.81) < 0.5 and status == "Liftoff":
         status = "Zero G"
@@ -70,6 +71,14 @@ def apply_overlay(request):
     if abs(data["alt"]) < 500 and status == "Descending under Parachute":
         status = "Landing"
 
+    if status == "Liftoff":
+        elapsed = time.monotonic() - launchTime
+        mins = int(elapsed // 60)
+        secs = int(elapsed % 60)
+        tenths = int((elapsed * 10) % 10)
+        time_str = f"T+ {mins:02d}:{secs:02d}.{tenths}"
+    else:
+        time_str = time.strftime('%H:%M:%S')
 
     # Split the data into multiple lines for a compact corner box
     lines = [
@@ -81,7 +90,7 @@ def apply_overlay(request):
         f"Accel: X:{data['accel'][2]:6.2f}, Y:{data['accel'][1]:6.2f}, Z:{data['accel'][0]:6.2f} m/s^2",
         f"Accel in G's X:{data['accel'][0]/9.81:6.2f}, Y:{data['accel'][1]/9.81:6.2f}, Z:{data['accel'][2]/9.81:6.2f}",
         f"STATUS: {status}",
-        f"T: {time.strftime('%H:%M:%S')}"
+        f"T: {time_str}"
     ]
 
     for stream_name in ["main", "lores"]:
