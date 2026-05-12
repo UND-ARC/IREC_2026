@@ -172,7 +172,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 360.0]
+    coordinate: [384, 336.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_sink_0
@@ -181,7 +181,7 @@ blocks:
     affinity: ''
     alias: ''
     attenuation1: '15'
-    bandwidth: '20000000'
+    bandwidth: '2_000_000'
     buffer_size: '131072'
     comment: ''
     cyclic: 'False'

@@ -550,7 +550,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    bandwidth: '20000000'
+    bandwidth: '2_000_000'
     bbdc: 'True'
     buffer_size: '131072'
     comment: ''
@@ -559,7 +559,7 @@ blocks:
     fpass: '0'
     frequency: '1_250_000_000'
     fstop: '0'
-    gain1: '''manual'''
+    gain1: '''slow_attack'''
     len_tag_key: packet_len
     manual_gain1: gain
     maxoutbuf: '0'
@@ -835,7 +835,7 @@ blocks:
     color9: '"dark green"'
     comment: ''
     ctrlpanel: 'False'
-    fc: '915000000'
+    fc: '1_250_000_000'
     fftsize: '1024'
     freqhalf: 'True'
     grid: 'False'

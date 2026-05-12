@@ -149,7 +149,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
-            915000000, #fc
+            1_250_000_000, #fc
             samp_rate, #bw
             "", #name
             2,
@@ -288,7 +288,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0_0.set_len_tag_key('packet_len')
         self.iio_pluto_source_0_0.set_frequency(1_250_000_000)
         self.iio_pluto_source_0_0.set_samplerate(samp_rate)
-        self.iio_pluto_source_0_0.set_gain_mode(0, 'manual')
+        self.iio_pluto_source_0_0.set_gain_mode(0, 'slow_attack')
         self.iio_pluto_source_0_0.set_gain(0, gain)
         self.iio_pluto_source_0_0.set_quadrature(True)
         self.iio_pluto_source_0_0.set_rfdc(True)
@@ -406,7 +406,7 @@ class RX_GNU_radio(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.iio_pluto_source_0_0.set_samplerate(self.samp_rate)
         self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 750_000, 100000, window.WIN_HAMMING, 6.76))
-        self.qtgui_freq_sink_x_0.set_frequency_range(915000000, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(1_250_000_000, self.samp_rate)
 
     def get_rrc_taps(self):
         return self.rrc_taps
