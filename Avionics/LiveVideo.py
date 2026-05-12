@@ -54,6 +54,7 @@ def apply_overlay(request):
         return
 
     global status
+    global launchTime
     data = get_telemetry()
 
     accel_mag = math.sqrt(data["accel"][0] ** 2 + data["accel"][1] ** 2 + data["accel"][2] ** 2)
