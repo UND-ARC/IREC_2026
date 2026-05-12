@@ -3,7 +3,7 @@ from datetime import datetime
 import socket
 import time
 import cv2
-import io
+import subprocess
 
 from picamera2 import Picamera2, MappedArray
 from picamera2.encoders import H264Encoder
@@ -13,6 +13,10 @@ import Constants
 from GPS import GPSController
 from BME680Controller import BMEControllerI2C
 from IMUController import IMUController
+
+process = subprocess.Popen(['python', 'TX_GNU_radio.py'])
+
+time.sleep(1)
 
 #start gps
 gps = GPSController()
