@@ -55,14 +55,15 @@ def apply_overlay(request):
 
     global status
     data = get_telemetry()
-    '''
+
+    accel_mag = math.sqrt(data["accel"][0] ** 2 + data["accel"][1] ** 2 + data["accel"][2] ** 2)
     #update flight status
-    if data["accel"]*9.81 > 2.0 and status == "Waiting for liftoff":
+    if accel_mag*9.81 > 2.0 and status == "Waiting for liftoff":
         status = "Liftoff"
     
-    if math.abs(data["accel"]*9.81) < 0.5 and status == "Liftoff":
+    if abs(accel_mag*9.81) < 0.5 and status == "Liftoff":
         status = "Zero G"
-    '''
+
 
     # Split the data into multiple lines for a compact corner box
     lines = [
@@ -71,7 +72,8 @@ def apply_overlay(request):
         f"GPS: {data['gps']}",
         f"SPEED: {data['vel']}",
         f"IMU: pitch:{data["pitch"]:.1f}, yaw:{data['yaw']:.1f}, roll:{data['roll']:.1f}",
-        f"Accel: {data['accel']} m/s^2",
+        f"Accel: X:{data['accel'][0]:.2f}, Y:{data['accel'][1]:.2f}, Z:{data['accel'][2]:.2f} m/s^2",
+        f"Accel in G's X:{data['accel'][0]*9.81:.2f}, Y:{data['accel'][1]*9.81:.2f}, Z:{data['accel'][2]*9.81:.2f}"
         f"STATUS: {status}",
         f"T: {time.strftime('%H:%M:%S')}"
     ]
