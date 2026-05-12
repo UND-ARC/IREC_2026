@@ -72,7 +72,7 @@ def apply_overlay(request):
     if abs(data["alt"]) < 500 and status == "Descending under Parachute":
         status = "Landing"
 
-    if status == "Liftoff":
+    if status != "Waiting for liftoff":
         elapsed = time.monotonic() - launchTime
         mins = int(elapsed // 60)
         secs = int(elapsed % 60)
